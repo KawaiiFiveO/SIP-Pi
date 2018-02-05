@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 	// first set some default values
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
-    app_cfg.ipv6=1;
+    app_cfg.ipv6=0;
 
 
 	// print infos
@@ -384,9 +384,7 @@ static void parse_config_file(char *cfg_file)
 			char *arg_val = strdup(val);	
 			//check for IPv6-config
             if (!strcasecmp(arg, "ipv6")) {
-                if (trim_string(arg_val) == "on") {
-                    app_cfg.ipv6 = 1;
-                }
+                    app_cfg.ipv6 = atoi(val);
                 continue;
             }
 			// check for sip domain argument
