@@ -103,6 +103,7 @@ pjsua_player_id play_id = PJSUA_INVALID_ID;
 pjmedia_port *play_port;
 pjsua_recorder_id rec_id = PJSUA_INVALID_ID;
 pjsua_call_id current_call = PJSUA_INVALID_ID;
+pjsua_transport_id udp_tp_id = NULL;
 
 // header of helper-methods
 static void create_player(pjsua_call_id, char *);
@@ -136,6 +137,7 @@ int main(int argc, char *argv[])
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
     app_cfg.ipv6=0;
+
 
 	// print infos
 	log_message("SIP Call - Simple TTS/DTMF-based answering machine\n");
@@ -606,7 +608,7 @@ static void setup_sip(void)
         transport_type = PJSIP_TRANSPORT_UDP6;
     }
     udpcfg.port = 5060;
-    status = pjsua_transport_create(transport_type, &udpcfg, NULL);
+    status = pjsua_transport_create(transport_type, &udpcfg, &udp_tp_id);
 	if (status != PJ_SUCCESS) error_exit("Error creating transport", status);
 	
 	// initialization is done, start pjsua
@@ -648,7 +650,13 @@ static void register_sip(void)
 	cfg.cred_info[0].username = pj_str(app_cfg.sip_user);
 	cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
 	cfg.cred_info[0].data = pj_str(app_cfg.sip_password);
-	
+    cfg.transport_id=udp_tp_id;
+
+    //enable IPv6
+    if(app_cfg.ipv6==1) {
+        cfg.ipv6_media_use = PJSUA_IPV6_ENABLED;
+    }
+
 	// add account
 	status = pjsua_acc_add(&cfg, PJ_TRUE, &acc_id);
 	if (status != PJ_SUCCESS) error_exit("Error adding account", status);
