@@ -103,7 +103,7 @@ pjsua_player_id play_id = PJSUA_INVALID_ID;
 pjmedia_port *play_port;
 pjsua_recorder_id rec_id = PJSUA_INVALID_ID;
 pjsua_call_id current_call = PJSUA_INVALID_ID;
-pjsua_transport_id udp_tp_id = NULL;
+pjsua_transport_id udp_tp_id = -1;
 
 // header of helper-methods
 static void create_player(pjsua_call_id, char *);
@@ -136,7 +136,7 @@ int main(int argc, char *argv[])
 	// first set some default values
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
-    app_cfg.ipv6=0;
+    app_cfg.ipv6=1;
 
 
 	// print infos
@@ -145,7 +145,7 @@ int main(int argc, char *argv[])
 		
 	// register signal handler for break-in-keys (e.g. ctrl+c)
 	signal(SIGINT, signal_handler);
-	//signal(SIGKILL, signal_handler);
+	signal(SIGKILL, signal_handler);
 
 	// init dtmf settings (dtmf 0 is reserved for exit call)
 	int i;
