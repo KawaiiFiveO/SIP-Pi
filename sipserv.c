@@ -385,6 +385,7 @@ static void parse_config_file(char *cfg_file)
                 if (trim_string(arg_val) == "on") {
                     app_cfg.ipv6 = 1;
                 }
+                continue;
             }
 			// check for sip domain argument
 			if (!strcasecmp(arg, "sd")) 
