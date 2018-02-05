@@ -606,6 +606,7 @@ static void setup_sip(void)
     else //If IPv6 used
     {
         transport_type = PJSIP_TRANSPORT_UDP6;
+        log_message("Enabling IPv6");
     }
     udpcfg.port = 5060;
     status = pjsua_transport_create(transport_type, &udpcfg, &udp_tp_id);
@@ -654,6 +655,7 @@ static void register_sip(void)
 
     //enable IPv6
     if(app_cfg.ipv6==1) {
+        log_message("Enabling IPv6");
         cfg.ipv6_media_use = PJSUA_IPV6_ENABLED;
     }
 
