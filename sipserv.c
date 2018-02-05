@@ -638,7 +638,7 @@ static void register_sip(void)
 	char sip_user_url[40];
 	sprintf(sip_user_url, "sip:%s@%s", app_cfg.sip_user, app_cfg.sip_domain);
 	
-	// build sip-provder-url
+	// build sip-provider-url
 	char sip_provider_url[40];
 	sprintf(sip_provider_url, "sip:%s", app_cfg.sip_domain);
 	
@@ -646,7 +646,7 @@ static void register_sip(void)
 	cfg.id = pj_str(sip_user_url);
 	cfg.reg_uri = pj_str(sip_provider_url);
 	cfg.cred_count = 1;
-	cfg.cred_info[0].realm = pj_str(app_cfg.sip_domain);
+	cfg.cred_info[0].realm = pj_str("*");/*pj_str(app_cfg.sip_domain);*/
 	cfg.cred_info[0].scheme = pj_str("digest");
 	cfg.cred_info[0].username = pj_str(app_cfg.sip_user);
 	cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
