@@ -47,6 +47,7 @@ Lesser General Public License for more details.
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
 
+
 // some espeak options
 #define ESPEAK_AMPLITUDE 100
 #define ESPEAK_CAPITALS_PITCH 20
@@ -71,7 +72,8 @@ struct dtmf_config {
 };
 
 // struct for app configuration settings
-struct app_config { 
+struct app_config {
+    int ipv6;
 	char *sip_domain;
 	char *sip_user;
 	char *sip_password;
@@ -132,7 +134,8 @@ int main(int argc, char *argv[])
 {
 	// first set some default values
 	app_cfg.record_calls = 0;
-	app_cfg.silent_mode = 0; 
+	app_cfg.silent_mode = 0;
+    app_cfg.ipv6=0;
 
 	// print infos
 	log_message("SIP Call - Simple TTS/DTMF-based answering machine\n");
@@ -140,7 +143,7 @@ int main(int argc, char *argv[])
 		
 	// register signal handler for break-in-keys (e.g. ctrl+c)
 	signal(SIGINT, signal_handler);
-	signal(SIGKILL, signal_handler);
+	//signal(SIGKILL, signal_handler);
 
 	// init dtmf settings (dtmf 0 is reserved for exit call)
 	int i;
@@ -377,7 +380,12 @@ static void parse_config_file(char *cfg_file)
 			
 			// duplicate string for having own instance of it
 			char *arg_val = strdup(val);	
-			
+			//check for IPv6-config
+            if (!strcasecmp(arg, "ipv6")) {
+                if (trim_string(arg_val) == "on") {
+                    app_cfg.ipv6 = 1;
+                }
+            }
 			// check for sip domain argument
 			if (!strcasecmp(arg, "sd")) 
 			{
@@ -586,13 +594,18 @@ static void setup_sip(void)
 	// initialize pjsua 
 	status = pjsua_init(&cfg, &log_cfg, &media_cfg);
 	if (status != PJ_SUCCESS) error_exit("Error in pjsua_init()", status);
-	
-	// add udp transport
-	pjsua_transport_config udpcfg;
-	pjsua_transport_config_default(&udpcfg);
-		
-	udpcfg.port = 5060;
-	status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udpcfg, NULL);
+    pjsua_transport_config udpcfg;
+    pjsip_transport_type_e transport_type;
+    pjsua_transport_config_default(&udpcfg);
+    if(app_cfg.ipv6 != 1) { //if IPv4 used
+        transport_type = PJSIP_TRANSPORT_UDP;
+    }
+    else //If IPv6 used
+    {
+        transport_type = PJSIP_TRANSPORT_UDP6;
+    }
+    udpcfg.port = 5060;
+    status = pjsua_transport_create(transport_type, &udpcfg, NULL);
 	if (status != PJ_SUCCESS) error_exit("Error creating transport", status);
 	
 	// initialization is done, start pjsua
