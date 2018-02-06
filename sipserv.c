@@ -95,6 +95,7 @@ char *tts_answer_file = "ans.wav";
 char rec_ans_file[100] = "rec.wav"; // will be overwritten!
 char lastNumber[100] = "000"; // will be overwritten!
 
+
 // global helper vars
 int app_exiting = 0;
 
@@ -494,7 +495,7 @@ static void parse_config_file(char *cfg_file)
 					continue;
 				}
 
-                if (!strcasecmp(arg, "audio-response"))
+                if (!strcasecmp(dtmf_setting, "audio-response"))
                 {
                     d_cfg->audio_response_file = trim_string(arg_val);
                     continue;
@@ -1075,7 +1076,7 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 				char tts_buffer[200];
 				sprintf(tts_buffer, d_cfg->tts_answer, result);
 
-                if (d_cfg->audio_response_file)
+                if (d_cfg->audio_response_file =! NULL)
                 {
                     create_player(call_id, d_cfg->audio_response_file);
                     log_message("Playing configured audio file");
