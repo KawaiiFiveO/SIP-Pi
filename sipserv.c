@@ -1025,16 +1025,16 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
             {
                 if (digit==35)
                 {
-                    dtmf_key=15;
+                    dtmf_key=15; // # button
                 }else {
                     if (digit == 42) {
-                        dtmf_key = 14;
+                        dtmf_key = 13; // *  button
                     }
                     else
                     {
                         if (digit >= 65 && digit <= 68)
                         {
-                            dtmf_key = digit-55;
+                            dtmf_key = digit-55; // possible A,B,C,D Buttons according to DTMF standart
                         }
                     }
                 }
