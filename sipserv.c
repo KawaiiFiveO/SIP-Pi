@@ -1085,27 +1085,30 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 			error = callBash(command, result);
 			if (d_cfg->audio_response_file != NULL) //takes higher priority
 			{
-                player_destroy(play_id);
-                recorder_destroy(rec_id);
-				create_player(call_id, d_cfg->audio_response_file);
-				log_message("Playing configured audio file... ");
-				noaudiofile=0;
-			}
-			if (!error && noaudiofile) //when no audio file played
-			{
 				player_destroy(play_id);
 				recorder_destroy(rec_id);
-				
-				char tts_buffer[200];
-				sprintf(tts_buffer, d_cfg->tts_answer, result);
 
-				int synth_status = -1;
-                synth_status = synthesize_speech(tts_buffer, tts_answer_file, app_cfg.language);
-                if (synth_status != 0) log_message(" (Failed to synthesize speech) ");
-                create_player(call_id, tts_answer_file);
-
+				create_player(call_id, d_cfg->audio_response_file);
+				log_message("Playing configured audio file... ");
+				noaudiofile = 0;
 			}
-			
+			else
+				{
+					if (!error && noaudiofile) //when no audio file played
+					{
+						player_destroy(play_id);
+						recorder_destroy(rec_id);
+
+						char tts_buffer[200];
+						sprintf(tts_buffer, d_cfg->tts_answer, result);
+
+						int synth_status = -1;
+						synth_status = synthesize_speech(tts_buffer, tts_answer_file, app_cfg.language);
+						if (synth_status != 0) log_message(" (Failed to synthesize speech) ");
+						create_player(call_id, tts_answer_file);
+
+					}
+				}
 			log_message("Done.\n");
 		}
 		else
