@@ -470,7 +470,7 @@ static void parse_config_file(char *cfg_file)
 				if (d_id >= MAX_DTMF_SETTINGS) continue;
 				
 				// get pointer to actual dtmf_cfg entry
-				struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[d_id-1];
+				struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[d_id];
 				
 				// check for dtmf active setting
 				if (!strcasecmp(dtmf_setting, "active"))
