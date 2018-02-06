@@ -58,7 +58,7 @@ Lesser General Public License for more details.
 #define PJSUA_LOG_LEVEL 0
 
 // define max supported dtmf settings
-#define MAX_DTMF_SETTINGS 9
+#define MAX_DTMF_SETTINGS 16
 
 // struct for app dtmf settings
 struct dtmf_config { 
@@ -147,12 +147,12 @@ int main(int argc, char *argv[])
 	signal(SIGINT, signal_handler);
 	signal(SIGKILL, signal_handler);
 
-	// init dtmf settings (dtmf 0 is reserved for exit call)
+	// init dtmf settings (dtmf zero is not reserved for anything!)
 	int i;
 	for (i = 0; i < MAX_DTMF_SETTINGS; i++)
 	{
 		struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[i];
-		d_cfg->id = i+1;
+		d_cfg->id = i;
 		d_cfg->active = 0;
 		d_cfg->processing_active = 0;
 	}
@@ -470,7 +470,7 @@ static void parse_config_file(char *cfg_file)
 				if (d_id >= MAX_DTMF_SETTINGS) continue;
 				
 				// get pointer to actual dtmf_cfg entry
-				struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[d_id-1];
+				struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[d_id];
 				
 				// check for dtmf active setting
 				if (!strcasecmp(dtmf_setting, "active"))
@@ -1017,13 +1017,34 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 	pjsua_call_get_info(call_id, &ci);
 	
 	// work on detected dtmf digit
-	int dtmf_key = digit - 48;
+	int dtmf_key = 0;
+            if (digit >= 48 && digit <=57) {
+            dtmf_key = digit - 48;
+            }
+            else
+            {
+                if (digit==35)
+                {
+                    dtmf_key=15;
+                }else {
+                    if (digit == 42) {
+                        dtmf_key = 14;
+                    }
+                    else
+                    {
+                        if (digit >= 65 && digit <= 68)
+                        {
+                            dtmf_key = digit-55;
+                        }
+                    }
+                }
+            }
 	
 	char info[100];
 	sprintf(info, "DTMF command detected: %i\n", dtmf_key);
 	log_message(info);
 	
-	struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[dtmf_key-1];
+	struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[dtmf_key];
 	if (d_cfg->processing_active == 0)
 	{
 		d_cfg->processing_active = 1;
