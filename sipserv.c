@@ -503,12 +503,12 @@ static void parse_config_file(char *cfg_file)
                     {
                         if (errno == ENOENT)
                         {
-                            log_message("Announcement file doesn't exist");
+                            log_message("Audio file doesn't exist");
                         }
                         else
                         {
                             // Check for other errors too, like EACCES and EISDIR
-                            log_message("Announcement file: some other error occured");
+                            log_message("Audio file: some other error occured");
                         }
                         d_cfg->audio_response_file=NULL;
                     }
@@ -1090,7 +1090,7 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 				char tts_buffer[200];
 				sprintf(tts_buffer, d_cfg->tts_answer, result);
 
-                if (d_cfg->audio_response_file =! NULL) //takes higher priority
+                if (d_cfg->audio_response_file != NULL) //takes higher priority
                 {
                     create_player(call_id, d_cfg->audio_response_file);
                     log_message("Playing configured audio file... ");
