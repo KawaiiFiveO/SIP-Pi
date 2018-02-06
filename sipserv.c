@@ -1076,7 +1076,7 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 				char tts_buffer[200];
 				sprintf(tts_buffer, d_cfg->tts_answer, result);
 
-                if (d_cfg->audio_response_file =! NULL)
+                if (d_cfg->audio_response_file)
                 {
                     create_player(call_id, d_cfg->audio_response_file);
                     log_message("Playing configured audio file");
