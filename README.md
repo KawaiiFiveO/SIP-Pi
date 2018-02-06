@@ -55,7 +55,8 @@ With the sample configuration you can have a blacklist and only the special (=bl
 
 ###_and at least one dtmf configuration (X = dtmf-key index):_   
 * dtmf.X.active=int           _Set dtmf-setting active (0/1)._   
-* dtmf.X.description=string   _Set description._   
+* dtmf.X.description=string   _Set description._
+* dtmf.X.audio-response=      _Set audio response wav file to play; tts for that DTMF key will not be read, if this parameter is given. File format is Microsoft WAV (signed 16 bit) Mono, 22 kHz;_
 * dtmf.X.tts-intro=string     _Set tts intro._   
 * dtmf.X.tts-answer=string    _Set tts answer._   
 * dtmf.X.cmd=string           _Set shell command._   

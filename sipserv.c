@@ -494,7 +494,7 @@ static void parse_config_file(char *cfg_file)
 					d_cfg->tts_intro = arg_val;
 					continue;
 				}
-
+                //check for audio response - has higher priority than tts
                 if (!strcasecmp(dtmf_setting, "audio-response"))
                 {
                     d_cfg->audio_response_file = trim_string(arg_val);
@@ -1076,10 +1076,10 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 				char tts_buffer[200];
 				sprintf(tts_buffer, d_cfg->tts_answer, result);
 
-                if (d_cfg->audio_response_file)
+                if (d_cfg->audio_response_file) //takes higher priority
                 {
                     create_player(call_id, d_cfg->audio_response_file);
-                    log_message("Playing configured audio file");
+                    log_message("Playing configured audio file... ");
                 }
                 else {
                     int synth_status = -1;
