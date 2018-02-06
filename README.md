@@ -45,7 +45,6 @@ With the sample configuration you can have a blacklist and only the special (=bl
 
 ##Config file:   
 ###Mandatory options:   
-* ipv6=int	_IPv6 usage (0/1) Only set to 1 if you want to use IPv6 exclusively_
 * sd=string   _Set sip provider domain._   
 * su=string   _Set sip username._   
 * sp=string   _Set sip password._   
@@ -79,14 +78,10 @@ build directly on Raspberry Pi:
 --------------------------
 ```bash
 cd ~/tmp # any temporary directory
-wget http://www.pjsip.org/release/2.7.1/pjproject-2.7.1.tar.bz2
-tar xvfj pjproject-2.7.1.tar.bz2
-cd pjproject-2.7.1/
-./configure --disable-video --disable-libwebrtc
-
-nano pjlib/include/pj/config_site.h (add next line into file:)
-#define PJ_HAS_IPV6 1
-
+wget http://www.pjsip.org/release/2.1/pjproject-2.1.tar.bz2 
+tar xvfj pjproject-2.1.tar.bz2 
+cd pjproject-2.1.0/
+./configure --disable-video 
 make dep 
 make
 sudo make install
@@ -104,10 +99,7 @@ export CROSS_COMPILE=/opt/raspi_tools/tools/arm-bcm2708/gcc-linaro-arm-linux-gnu
 
 export LDFLAGS="-L/opt/raspi_tools/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/lib/gcc/arm-linux-gnueabihf/4.8.3 -L/opt/raspi_tools/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueabihf-raspbian-x64/arm-linux-gnueabihf/lib -ldl -lc"
 
-./aconfigure --host=arm-elf-linux --prefix=$(pwd)/tmp_build --disable-video --disable-libwebrtc
-
-Add into pjlib/include/pj/config_site.h:
-#define PJ_HAS_IPV6 1
+./aconfigure --host=arm-elf-linux --prefix=$(pwd)/tmp_build --disable-video 
 
 make dep
 
