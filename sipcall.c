@@ -608,15 +608,6 @@ int check_sip_argument(int arg, int argc, char *argv[])
 		return 1;
 	}
 
-    // check for IPv6 option
-    char *temp = NULL;
-    if (try_get_argument(arg, "-ipv6", &temp, argc, argv) == 1)
-    {
-        if (temp="1") {
-            app_cfg.ipv6 = 1;
-        }
-        return 1;
-    }
 	return 0;
 }
 
@@ -657,4 +648,11 @@ int check_call_options(int arg, int argc, char *argv[])
 		app_cfg.silent_mode = 1;
 		return 1;
 	}
+    char *iv6;
+    try_get_argument(arg, "-s", &iv6, argc, argv);
+    if (!strcasecmp(iv6, "1"))
+    {
+        app_cfg.ipv6 = 1;
+        return 1;
+    }
 }
