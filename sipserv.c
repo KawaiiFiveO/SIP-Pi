@@ -462,7 +462,7 @@ static void parse_config_file(char *cfg_file)
 			// check for a dtmf argument
 			char dtmf_id[1];
 			char dtmf_setting[25];
-			if(sscanf(arg, "dtmf.%1[^.].%s", dtmf_id, dtmf_setting) == 2)
+			if(sscanf(arg, "dtmf.%d/1[^.]*/.%s", dtmf_id, dtmf_setting) == 2) //corrected
 			{
 				// parse dtmf id (key)
 				int d_id;
