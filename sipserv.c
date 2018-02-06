@@ -604,7 +604,7 @@ static void setup_sip(void)
     else //If IPv6 used
     {
         transport_type = PJSIP_TRANSPORT_UDP6;
-        log_message("Enabling IPv6");
+        log_message("Enabling IPv6\n");
     }
     udpcfg.port = 5060;
     status = pjsua_transport_create(transport_type, &udpcfg, &udp_tp_id);
@@ -633,11 +633,11 @@ static void register_sip(void)
 	pjsua_acc_config_default(&cfg);
 	
 	// build sip-user-url
-	char sip_user_url[40];
+	char sip_user_url[100];
 	sprintf(sip_user_url, "sip:%s@%s", app_cfg.sip_user, app_cfg.sip_domain);
 	
 	// build sip-provider-url
-	char sip_provider_url[40];
+	char sip_provider_url[100];
 	sprintf(sip_provider_url, "sip:%s", app_cfg.sip_domain);
 	
 	// create and define account
@@ -653,7 +653,7 @@ static void register_sip(void)
 
     //enable IPv6
     if(app_cfg.ipv6==1) {
-        log_message("Enabling IPv6");
+        log_message("Enabling IPv6\n");
         cfg.ipv6_media_use = PJSUA_IPV6_ENABLED;
     }
 
