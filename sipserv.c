@@ -1089,7 +1089,7 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 				log_message("Playing configured audio file... ");
 				noaudiofile=0;
 			}
-			if (!error && !noaudiofile)
+			if (!error && noaudiofile)
 			{  
 				player_destroy(play_id);
 				recorder_destroy(rec_id);
