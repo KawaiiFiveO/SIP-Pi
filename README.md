@@ -10,6 +10,7 @@ Dependencies:
 Copyright (C) 2012 by _Andre Wussow_, desk@binerry.de
 
 major changes 2017 by _Fabian Huslik, github.com/fabianhu_
+more changes 2018 by  _Kaito Cross_
 
 For more informations please visit http://binerry.de/post/29180946733/raspberry-pi-caller-and-answering-machine.
 
