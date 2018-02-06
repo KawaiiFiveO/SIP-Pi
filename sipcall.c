@@ -54,7 +54,8 @@ Lesser General Public License for more details.
 #define PJSUA_LOG_LEVEL 0
 
 // struct for app configuration settings
-struct app_config { 
+struct app_config {
+    int ipv6;
 	char *sip_domain;
 	char *sip_user;
 	char *sip_password;
@@ -77,6 +78,7 @@ pjsua_acc_id acc_id;
 pjsua_player_id play_id = PJSUA_INVALID_ID;
 pjmedia_port *play_port;
 pjsua_recorder_id rec_id = PJSUA_INVALID_ID;
+pjsua_transport_id udp_tp_id = -1;
 
 // header for new functions
 static void default_configs(void);
@@ -243,11 +245,19 @@ static void setup_sip(void)
 	if (status != PJ_SUCCESS) error_exit("Error in pjsua_init()", status);
 	
 	// add udp transport
-	pjsua_transport_config udpcfg;
-	pjsua_transport_config_default(&udpcfg);
-		
+    pjsua_transport_config udpcfg;
+    pjsip_transport_type_e transport_type;
+    pjsua_transport_config_default(&udpcfg);
+    if(app_cfg.ipv6 != 1) { //if IPv4 used
+        transport_type = PJSIP_TRANSPORT_UDP;
+    }
+    else //If IPv6 used
+    {
+        transport_type = PJSIP_TRANSPORT_UDP6;
+        log_message("Enabling IPv6\n");
+    }
 	udpcfg.port = 5060;
-	status = pjsua_transport_create(PJSIP_TRANSPORT_UDP, &udpcfg, NULL);
+	status = pjsua_transport_create(transport_type, &udpcfg, &udp_tp_id);
 	if (status != PJ_SUCCESS) error_exit("Error creating transport", status);
 	
 	// initialization is done, start pjsua
@@ -264,37 +274,46 @@ static void setup_sip(void)
 // helper for creating and registering sip-account
 static void register_sip(void)
 {
-	pj_status_t status;
-	
-	log_message("Registering account ... ");
-	
-	// prepare account configuration
-	pjsua_acc_config cfg;
-	pjsua_acc_config_default(&cfg);
-	
-	// build sip-user-url
-	char sip_user_url[40];
-	sprintf(sip_user_url, "sip:%s@%s", app_cfg.sip_user, app_cfg.sip_domain);
-	
-	// build sip-provder-url
-	char sip_provider_url[40];
-	sprintf(sip_provider_url, "sip:%s", app_cfg.sip_domain);
-	
-	// create and define account
-	cfg.id = pj_str(sip_user_url);
-	cfg.reg_uri = pj_str(sip_provider_url);
-	cfg.cred_count = 1;
-	cfg.cred_info[0].realm = pj_str(app_cfg.sip_domain);
-	cfg.cred_info[0].scheme = pj_str("digest");
-	cfg.cred_info[0].username = pj_str(app_cfg.sip_user);
-	cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
-	cfg.cred_info[0].data = pj_str(app_cfg.sip_password);
-	
-	// add account
-	status = pjsua_acc_add(&cfg, PJ_TRUE, &acc_id);
-	if (status != PJ_SUCCESS) error_exit("Error adding account", status);
-	
-	log_message("Done.\n");
+    pj_status_t status;
+
+    log_message("Registering account ... ");
+
+    // prepare account configuration
+    pjsua_acc_config cfg;
+    pjsua_acc_config_default(&cfg);
+
+    // build sip-user-url
+    char sip_user_url[100];
+    sprintf(sip_user_url, "sip:%s@%s", app_cfg.sip_user, app_cfg.sip_domain);
+
+    // build sip-provider-url
+    char sip_provider_url[100];
+    sprintf(sip_provider_url, "sip:%s", app_cfg.sip_domain);
+
+    // create and define account
+    cfg.id = pj_str(sip_user_url);
+    cfg.reg_uri = pj_str(sip_provider_url);
+    cfg.cred_count = 1;
+    cfg.cred_info[0].realm = pj_str(app_cfg.sip_domain);
+    cfg.cred_info[0].scheme = pj_str("digest");
+    cfg.cred_info[0].username = pj_str(app_cfg.sip_user);
+    cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
+    cfg.cred_info[0].data = pj_str(app_cfg.sip_password);
+    cfg.transport_id=udp_tp_id;
+
+    //enable IPv6
+    if(app_cfg.ipv6==1) {
+        log_message("Enabling IPv6\n");
+        cfg.ipv6_media_use = PJSUA_IPV6_ENABLED;
+    }
+
+    // add account
+    status = pjsua_acc_add(&cfg, PJ_TRUE, &acc_id);
+    if (status != PJ_SUCCESS) error_exit("Error adding account", status);
+
+
+
+    log_message("Done.\n");
 }
 
 // helper for making calls over sip-account
@@ -515,7 +534,8 @@ static void default_configs(void)
 	app_cfg.tts_file = "play.wav";
 	app_cfg.record_call = 0;
 	app_cfg.repetition_limit = 3;
-	app_cfg.silent_mode = 0; 
+	app_cfg.silent_mode = 0;
+    app_cfg.ipv6=0;
 }
 
 void verify_arguments(int argc)
@@ -588,6 +608,15 @@ int check_sip_argument(int arg, int argc, char *argv[])
 		return 1;
 	}
 
+    // check for IPv6 option
+    char *temp = NULL;
+    if (try_get_argument(arg, "-ipv6", &temp, argc, argv) == 1)
+    {
+        if (temp="1") {
+            app_cfg.ipv6 = 1;
+        }
+        return 1;
+    }
 	return 0;
 }
 

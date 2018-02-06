@@ -644,7 +644,7 @@ static void register_sip(void)
 	cfg.id = pj_str(sip_user_url);
 	cfg.reg_uri = pj_str(sip_provider_url);
 	cfg.cred_count = 1;
-	cfg.cred_info[0].realm = pj_str("*");/*pj_str(app_cfg.sip_domain);*/
+	cfg.cred_info[0].realm = pj_str(app_cfg.sip_domain);
 	cfg.cred_info[0].scheme = pj_str("digest");
 	cfg.cred_info[0].username = pj_str(app_cfg.sip_user);
 	cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
@@ -660,7 +660,9 @@ static void register_sip(void)
 	// add account
 	status = pjsua_acc_add(&cfg, PJ_TRUE, &acc_id);
 	if (status != PJ_SUCCESS) error_exit("Error adding account", status);
-	
+
+
+
 	log_message("Done.\n");
 }
 
