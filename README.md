@@ -75,7 +75,13 @@ With the sample configuration you can have a blacklist and only the special (=bl
 ./sipserv-ctrl.sh start and 
 ./sipserv-ctrl.sh stop
 ```
-Build PjSIP 
+
+Changelog since fabianhu's version:
+* Implemented IPv6 Support
+* added option for wavefile being played instead of an tts file when DTMF key has been pressed
+* added *, #, 0, and A-D into processable DTMF-signals
+
+Build PjSIP
 ===========
 build directly on Raspberry Pi:
 --------------------------
