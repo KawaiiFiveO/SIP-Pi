@@ -66,6 +66,7 @@ struct dtmf_config {
 	int active;
 	int processing_active;
 	char *description;
+    char *audio_response_file;
 	char *tts_intro;
 	char *tts_answer;
 	char *cmd;
@@ -492,7 +493,12 @@ static void parse_config_file(char *cfg_file)
 					d_cfg->tts_intro = arg_val;
 					continue;
 				}
-				
+
+                if (!strcasecmp(arg, "audio-response"))
+                {
+                    d_cfg->audio_response_file = trim_string(arg_val);
+                    continue;
+                }
 				// check for dtmf tts answer setting
 				if (!strcasecmp(dtmf_setting, "tts-answer"))
 				{
@@ -1028,7 +1034,7 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
                     dtmf_key=15; // # button
                 }else {
                     if (digit == 42) {
-                        dtmf_key = 13; // *  button
+                        dtmf_key = 14; // *  button
                     }
                     else
                     {
@@ -1068,12 +1074,19 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 				
 				char tts_buffer[200];
 				sprintf(tts_buffer, d_cfg->tts_answer, result);
-				
-				int synth_status = -1;
-				synth_status = synthesize_speech(tts_buffer, tts_answer_file, app_cfg.language);
-				if (synth_status != 0) log_message(" (Failed to synthesize speech) ");	
-				
-				create_player(call_id, tts_answer_file);
+
+                if (d_cfg->audio_response_file)
+                {
+                    create_player(call_id, d_cfg->audio_response_file);
+                    log_message("Playing configured audio file");
+                }
+                else {
+                    int synth_status = -1;
+                    synth_status = synthesize_speech(tts_buffer, tts_answer_file, app_cfg.language);
+                    if (synth_status != 0) log_message(" (Failed to synthesize speech) ");
+
+                    create_player(call_id, tts_answer_file);
+                }
 			}
 			
 			log_message("Done.\n");
