@@ -19,12 +19,14 @@ Installation on Raspberry Pi 2/3 with Raspian
 =============================================
 1. Build and install PjSIP as explained below
 2. install eSpeak `sudo apt-get install espeak espeak-data`
-2. Copy Project folder to Raspberry Pi and hit`make` in this folder
-2. configure `sipserv.cfg` to your needs (see example configuration)
-2. test drive using`sudo ./sipserv --config-file sipserv.cfg`
-2. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
-2. stop the SIP service using `sipserv-ctrl.sh stop`
-2. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
+3. install wiringPi as outlined on http://wiringpi.com/download-and-install/
+4. after executing ./build as described, run sudo make install
+5. Copy Project folder to Raspberry Pi and hit`make` in this folder
+6. configure `sipserv.cfg` to your needs (see example configuration)
+7. test drive using`sudo ./sipserv --config-file sipserv.cfg`
+8. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
+9. stop the SIP service using `sipserv-ctrl.sh stop`
+10. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
 
 sipserv
 =======
