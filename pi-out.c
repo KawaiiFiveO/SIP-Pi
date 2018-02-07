@@ -2,7 +2,7 @@
 // Created by chris on 07.02.2018.
 //
 
-#include <wiringPi/wiringPi/wiringPi.h>
+#include <wiringPi.h>
 
 int initPi(void);
 void nibbleOutputGPIO(int,int,int,int,int);

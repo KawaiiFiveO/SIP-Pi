@@ -12,6 +12,7 @@ include_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.
 include_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjsip\\include)
 include_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjnath\\include)
 include_directories(C:\\Users\\chris\\sciebo\\GitHub\\SIP-Pi)
+include_directories(C:\\Users\\chris\\sciebo\\GitHub\\SIP-Pi\\wiringPi\\wiringPi)
 
 # add extra lib directories
 include_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjlib\\lib)
@@ -27,6 +28,7 @@ link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjmedia\\include)
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjsip\\include)
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjnath\\include)
+link_directories(C:\\Users\\chris\\sciebo\\GitHub\\SIP-Pi\\wiringPi\\wiringPi)
 
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjlib\\lib)
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjlib-util\\lib)
