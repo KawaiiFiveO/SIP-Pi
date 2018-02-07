@@ -972,13 +972,13 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
     //fprintf(call_log,"call: %s\n",logentry);
 	int fdlog;
 	fdlog=open(app_cfg.log_file,O_WRONLY | O_CREAT);
-	if(fdlog > 0)
+	if(fdlog < 0)
 	{
 		log_message("Error creating call log");
 	}
 	write(fdlog,logentry, sizeof(logentry));
 	close(fdlog);
-	
+
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
 	strcpy(lastNumber, sipNr); // remember number as well
