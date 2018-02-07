@@ -276,7 +276,7 @@ int main(int argc, char *argv[])
     if	(app_cfg.log_file)
     {
         log_message("Setting up call log\n");
-		call_log = fopen(app_cfg.log_file, "a");
+		/*call_log = fopen(app_cfg.log_file, "a");
         if (call_log == NULL)
         {
             if (errno == ENOENT)
@@ -293,7 +293,7 @@ int main(int argc, char *argv[])
         else
         {
             fclose(call_log);
-        }
+        }*/
     }
 	
 	// setup up sip library pjsua
@@ -968,8 +968,17 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
     LogEntryFromCallInfo(logentry,sipNr,ci);
-    fprintf(call_log,"call: %s\n",logentry);
 
+    //fprintf(call_log,"call: %s\n",logentry);
+	int fdlog;
+	fdlog=open(app_cfg.log_file,O_WRONLY | O_CREAT);
+	if(fdlog > 0)
+	{
+		log_message("Error creating call log");
+	}
+	write(fdlog,logentry, sizeof(logentry));
+	close(fdlog);
+	
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
 	strcpy(lastNumber, sipNr); // remember number as well
@@ -1227,7 +1236,7 @@ static void app_exit()
 		
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
-        fclose(call_log);
+        //fclose(call_log);
         pjsua_destroy();
 		
 		log_message("Done.\n");
@@ -1252,7 +1261,8 @@ static void error_exit(const char *title, pj_status_t status)
 		
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
-        fclose(call_log);
+        //
+		// fclose(call_log);
 		pjsua_destroy();
 		
 		exit(1);
