@@ -109,7 +109,7 @@ pjmedia_port *play_port;
 pjsua_recorder_id rec_id = PJSUA_INVALID_ID;
 pjsua_call_id current_call = PJSUA_INVALID_ID;
 pjsua_transport_id udp_tp_id = -1;
-FILE *call_log;
+FILE *call_log = NULL;
 
 // header of helper-methods
 static void create_player(pjsua_call_id, char *);
@@ -276,9 +276,8 @@ int main(int argc, char *argv[])
     if	(app_cfg.log_file)
     {
         log_message("Setting up call log\n");
-
-
-        if ((call_log = fopen(app_cfg.log_file, "a")) == NULL)
+		call_log = fopen(app_cfg.log_file, "a");
+        if (call_log == NULL)
         {
             if (errno == ENOENT)
             {
@@ -969,7 +968,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
     LogEntryFromCallInfo(logentry,sipNr,ci);
-    fprintf(call_log,"%s\n",logentry);
+    fprintf(call_log,"call: %s\n",logentry);
 
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
