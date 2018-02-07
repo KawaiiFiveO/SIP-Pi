@@ -10,6 +10,7 @@ Dependencies:
 Copyright (C) 2012 by _Andre Wussow_, desk@binerry.de
 
 major changes 2017 by _Fabian Huslik, github.com/fabianhu_
+
 more changes 2018 by  _Kaito Cross_
 
 For more informations please visit http://binerry.de/post/29180946733/raspberry-pi-caller-and-answering-machine.
@@ -20,7 +21,7 @@ Installation on Raspberry Pi 2/3 with Raspian
 2. install eSpeak `sudo apt-get install espeak espeak-data`
 2. Copy Project folder to Raspberry Pi and hit`make` in this folder
 2. configure `sipserv.cfg` to your needs (see example configuration)
-2. test drive using`./sipserv --config-file sipserv.cfg` 
+2. test drive using`sudo ./sipserv --config-file sipserv.cfg`
 2. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
 2. stop the SIP service using `sipserv-ctrl.sh stop`
 2. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
@@ -29,12 +30,14 @@ sipserv
 =======
 Pickup a call, have a welcome message played or read.
 Do some actions by pressing (DTMF) keys on your phone.
+Get 4-bit DTMF key value through GPIO1, GPIO4, GPIO5, GPIO6 (1 is least significant bit, 6 most significant bit)
 This service uses a generic approach. All actions are configurable via config file.
 One special usage is the special ability to record the caller while playing the intro.
 Please contact your lawyer, if this is legal in your country.
 With the sample configuration you can have a blacklist and only the special (=blacklisted) calls answered.
 
-##Usage:   
+
+##Usage:   (as root)
   `sipserv [options]`   
 
 ##Commandline:   
@@ -70,7 +73,7 @@ With the sample configuration you can have a blacklist and only the special (=bl
 
 ##a sample configuration can be found in sipserv-sample.cfg
   
-##sipserv can be controlled with 
+###sipserv can be controlled with
 ```bash
 ./sipserv-ctrl.sh start and 
 ./sipserv-ctrl.sh stop

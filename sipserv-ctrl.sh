@@ -32,13 +32,13 @@ serv_cfg="sipserv.cfg";
 
 if [ $1 = "start" ]; then 
 	# start sipserv in background
-	$(./sipserv -s 1 --config-file $serv_cfg > /dev/null &);
+	$(sudo ./sipserv -s 1 --config-file $serv_cfg > /dev/null &);
 	echo "sipserv started.";
 fi
 
 if [ $1 = "stop" ]; then 
 	# stop sipserv 
-	pid="$(ps aux | awk '/[s]ipserv/ {print $2}' | head -1)";
-	$(kill $pid  > /dev/null);
+	pid="$(sudo ps aux | awk '/[s]ipserv/ {print $2}' | head -1)";
+	$(sudo kill $pid  > /dev/null);
 	echo "sipserv stopped.";
 fi

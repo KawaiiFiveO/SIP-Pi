@@ -46,7 +46,7 @@ Lesser General Public License for more details.
 #include <time.h>
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
-#include <pi-out.c>
+#include "pi-out.c"
 
 
 // some espeak options
