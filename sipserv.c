@@ -885,7 +885,7 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 
 #define RESULTSIZE 20
 
-static void LogEntryFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci) {
+static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci) {
     // log call info
     char sipTxt[100] = "";
 
@@ -912,15 +912,17 @@ static void LogEntryFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
     getTimestamp(tmp);
 
     // build logentry
-    strcpy(filename, tmp);
-    strcat(filename, " ");
-    strcat(filename, sipNr);
+    strcpy(logentry, tmp);
+    strcat(logentry, " ");
+    strcat(logentry, sipNr);
+	strcat(logentry, '\n');
+	strcat(logentry, '\0');
     /*if (strlen(PhoneBookText) > 0) {
         strcat(filename, " ");
         strcat(filename, PhoneBookText);
     }*/
     //sanitize string for filename
-    stringRemoveChars(filename, "\":\\/*?|<>$%&'`{}[]()@");
+    stringRemoveChars(logentry, "\":\\/?*|<>$%&'`{}[]()@");
 }
 
 // helper for calling BASH
