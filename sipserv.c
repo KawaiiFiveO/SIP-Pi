@@ -883,7 +883,6 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 	stringRemoveChars(filename, "\":\\/*?|<>$%&'`{}[]()@");
 }
 
-#define RESULTSIZE 20
 /*
 static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci) {
     // log call info
@@ -924,6 +923,7 @@ static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci
     stringRemoveChars(logentry, "\":\\/?*|<>$%&'`{}[]()@");
 }*/
 
+#define RESULTSIZE 20
 // helper for calling BASH
 static int callBash(char* command, char* result) {
 
