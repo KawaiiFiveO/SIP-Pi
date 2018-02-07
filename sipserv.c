@@ -464,7 +464,7 @@ static void parse_config_file(char *cfg_file)
 				continue;
 			}
             // check for log file argument
-            if (!strcasecmp(arg, "af"))
+            if (!strcasecmp(arg, "call-log"))
             {
                 app_cfg.log_file = trim_string(arg_val);
                 continue;
