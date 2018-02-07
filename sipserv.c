@@ -278,7 +278,7 @@ int main(int argc, char *argv[])
         log_message("Setting up call log\n");
 
 
-        if ((call_log = fopen(app_cfg.announcement_file, "a")) == NULL)
+        if ((call_log = fopen(app_cfg.log_file, "a")) == NULL)
         {
             if (errno == ENOENT)
             {
@@ -541,12 +541,12 @@ static void parse_config_file(char *cfg_file)
                     {
                         if (errno == ENOENT)
                         {
-                            log_message("Audio file doesn't exist");
+                            log_message("Audio file doesn't exist\n");
                         }
                         else
                         {
                             // Check for other errors too, like EACCES and EISDIR
-                            log_message("Audio file: some other error occured");
+                            log_message("Audio file: some other error occured\n");
                         }
                         d_cfg->audio_response_file=NULL;
                     }
