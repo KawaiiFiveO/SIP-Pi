@@ -46,6 +46,7 @@ Lesser General Public License for more details.
 #include <time.h>
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
+#include <pi-out.c>
 
 
 // some espeak options
@@ -99,6 +100,7 @@ char lastNumber[100] = "000"; // will be overwritten!
 // global helper vars
 int app_exiting = 0;
 
+
 // global vars for pjsua
 pjsua_acc_id acc_id;
 pjsua_player_id play_id = PJSUA_INVALID_ID;
@@ -135,6 +137,12 @@ static void error_exit(const char *, pj_status_t);
 // main application
 int main(int argc, char *argv[])
 {
+    int success = initPi();
+    if (success != 0)
+    {
+        log_message("Error while initializing Pi Output");
+        app_exit();
+    }
 	// first set some default values
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
@@ -1033,6 +1041,7 @@ static void on_call_state(pjsua_call_id call_id, pjsip_event *e)
 // handler for dtmf-events
 static void on_dtmf_digit(pjsua_call_id call_id, int digit) 
 {
+
 	// get call infos
 	pjsua_call_info ci; 
 	pjsua_call_get_info(call_id, &ci);
@@ -1060,6 +1069,9 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
                     }
                 }
             }
+    dtmf_value=dtmf_key;
+    dtmf_trigger=1;
+    piThreadCreate(raspi_output);
 	
 	char info[100];
 	sprintf(info, "DTMF command detected: %i\n", dtmf_key);
