@@ -889,7 +889,7 @@ static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci
     // log call info
     char sipTxt[100] = "";
 
-    char PhoneBookText[100] = "NoEntry";
+    char PhoneBookText[100] = "called";
     char tmp[100];
     char* ptr;
     strcpy(tmp, ci.remote_info.ptr);
@@ -916,11 +916,11 @@ static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci
     strcat(logentry, " ");
     strcat(logentry, sipNr);
 	strcat(logentry, "\n");
-	strcat(logentry, "\0");
-    /*if (strlen(PhoneBookText) > 0) {
-        strcat(filename, " ");
-        strcat(filename, PhoneBookText);
-    }*/
+	strcat(logentry, '\0');
+    if (strlen(PhoneBookText) > 0) {
+        strcat(logentry, " ");
+        strcat(logentry, PhoneBookText);
+    }
     //sanitize string for filename
     stringRemoveChars(logentry, "\":\\/?*|<>$%&'`{}[]()@");
 }
@@ -978,7 +978,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	{
 		log_message("Error creating call log");
 	}
-	write(fdlog,logentry, sizeof(logentry));
+	write(fdlog,logentry,strlen(logentry));
 	close(fdlog);
 
 	// store filename for call into global variable for recorder
