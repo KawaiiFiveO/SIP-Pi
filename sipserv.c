@@ -87,6 +87,7 @@ struct app_config {
 	char *CallCmd;
 	char *AfterMath;
 	char *log_file;
+    char *config_file;
 	struct dtmf_config dtmf_cfg[MAX_DTMF_SETTINGS];
 } app_cfg;  
 
@@ -108,6 +109,7 @@ pjmedia_port *play_port;
 pjsua_recorder_id rec_id = PJSUA_INVALID_ID;
 pjsua_call_id current_call = PJSUA_INVALID_ID;
 pjsua_transport_id udp_tp_id = -1;
+FILE *call_log;
 
 // header of helper-methods
 static void create_player(pjsua_call_id, char *);
@@ -186,7 +188,7 @@ int main(int argc, char *argv[])
 			{
 				if (argc >= (arg+1))
 				{
-					app_cfg.log_file = argv[arg+1];	
+					app_cfg.config_file = argv[arg+1];
 				}
 				continue;
 			}
@@ -202,7 +204,7 @@ int main(int argc, char *argv[])
 		}
 	} 
 	
-	if (!app_cfg.log_file)
+	if (!app_cfg.config_file)
 	{
 		// too few arguments specified - display usage info and exit app
 		usage(1);
@@ -210,7 +212,7 @@ int main(int argc, char *argv[])
 	}
 	
 	// read app configuration from config file
-	parse_config_file(app_cfg.log_file);
+	parse_config_file(app_cfg.config_file);
 
 	if (!app_cfg.sip_domain || !app_cfg.sip_user || !app_cfg.sip_password || !app_cfg.language)
 	{
@@ -271,6 +273,29 @@ int main(int argc, char *argv[])
 	synth_status = synthesize_speech(tts_buffer, tts_file, app_cfg.language);
 	if (synth_status != 0) error_exit("Error while creating phone text", synth_status);	
 	log_message("Done.\n");
+    if	(app_cfg.log_file)
+    {
+        log_message("Setting up call log\n");
+
+
+        if ((call_log = fopen(app_cfg.announcement_file, "a")) == NULL)
+        {
+            if (errno == ENOENT)
+            {
+                log_message("error, call log failed");
+            }
+            else
+            {
+                // Check for other errors too, like EACCES and EISDIR
+                log_message("call log file: some other error occured");
+            }
+            exit(1);
+        }
+        else
+        {
+            fclose(call_log);
+        }
+    }
 	
 	// setup up sip library pjsua
 	setup_sip();
@@ -438,7 +463,12 @@ static void parse_config_file(char *cfg_file)
 				app_cfg.announcement_file = trim_string(arg_val);
 				continue;
 			}
-
+            // check for log file argument
+            if (!strcasecmp(arg, "af"))
+            {
+                app_cfg.log_file = trim_string(arg_val);
+                continue;
+            }
 			// check for call command
 			if (!strcasecmp(arg, "cmd"))
 			{
@@ -856,6 +886,44 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 
 #define RESULTSIZE 20
 
+static void LogEntryFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci) {
+    // log call info
+    char sipTxt[100] = "";
+
+    char PhoneBookText[100] = "NoEntry";
+    char tmp[100];
+    char* ptr;
+    strcpy(tmp, ci.remote_info.ptr);
+
+    // get elements
+    extractdelimited(PhoneBookText, tmp, '\"', '\"');
+    extractdelimited(sipTxt, tmp, '<', '>');
+
+    // extract phone number
+    if (strncmp(sipTxt, "sip:", 4) == 0) {
+        int i = strcspn(sipTxt, "@") - 4;
+        strncpy(sipNr, &sipTxt[4], i);
+        sipNr[i] = '\0';
+    } else {
+        //sprintf(tmp,"SIP invalid");
+        sprintf(tmp, "SIP does not start with sip:<%s>\n", sipTxt);
+        log_message(tmp);
+    }
+
+    getTimestamp(tmp);
+
+    // build logentry
+    strcpy(filename, tmp);
+    strcat(filename, " ");
+    strcat(filename, sipNr);
+    /*if (strlen(PhoneBookText) > 0) {
+        strcat(filename, " ");
+        strcat(filename, PhoneBookText);
+    }*/
+    //sanitize string for filename
+    stringRemoveChars(filename, "\":\\/*?|<>$%&'`{}[]()@");
+}
+
 // helper for calling BASH
 static int callBash(char* command, char* result) {
 
@@ -883,6 +951,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 {
 	char info[200];
 	char filename[200];
+    char logentry[200];
 	char sipNr[100] = "";
 
 	// get call infos
@@ -899,6 +968,8 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	// log call info
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
+    LogEntryFromCallInfo(logentry,sipNr,ci);
+    fprintf(call_log,"%s\n",logentry);
 
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
