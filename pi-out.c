@@ -3,8 +3,23 @@
 //
 
 #include <wiringPi/wiringPi/wiringPi.h>
+
+int initPi(void);
+void nibbleOutputGPIO(int,int,int,int,int);
+void togglePin(int);
+
 int dtmf_trigger = 0;
 int dtmf_value = 0;
+
+
+PI_THREAD (raspi_output)
+{
+    if (dtmf_trigger) {
+        dtmf_trigger = 0;
+        nibbleOutputGPIO(dtmf_value, 1, 4, 5, 6);
+        togglePin(7);
+    }
+}
 
 int initPi(void)
 {
@@ -30,12 +45,4 @@ void togglePin(int pin)
     digitalWrite(pin,1);
     delay(1);
     digitalWrite(pin,0);
-}
-PI_THREAD (raspi_output)
-{
-    if (dtmf_trigger) {
-        dtmf_trigger = 0;
-        nibbleOutputGPIO(dtmf_value, 1, 4, 5, 6);
-        togglePin(7);
-    }
 }

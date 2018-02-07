@@ -34,10 +34,9 @@ link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjsip\\lib)
 link_directories(C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjnath\\lib)
 add_executable(SIP_Pi_master
-        sipcall.c
         sipserv.c pi-out.c)
 # specify the dependency on an extra library
 #target_link_libraries(hello_clion check.a)
-target_link_libraries(SIP_Pi_master C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjlib\\include\\pjsua-lib\\pjsua.h)
+target_link_libraries(SIP_Pi_master C:\\Users\\chris\\Downloads\\pjproject-2.7.1\\pjproject-2.7.1\\pjlib\\include\\pjsua-lib\\pjsua.h C:\\Users\\chris\\sciebo\\GitHub\\SIP-Pi\\wiringPi\\wiringPi\\wiringPi.h)
 
 
