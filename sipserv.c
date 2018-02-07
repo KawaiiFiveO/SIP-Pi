@@ -883,44 +883,25 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 	stringRemoveChars(filename, "\":\\/*?|<>$%&'`{}[]()@");
 }
 
-/*
-static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci) {
+
+/*static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci) {
     // log call info
     char sipTxt[100] = "";
-
     char PhoneBookText[100] = "called";
     char tmp[100];
-    char* ptr;
     strcpy(tmp, ci.remote_info.ptr);
-
     // get elements
     extractdelimited(PhoneBookText, tmp, '\"', '\"');
-    extractdelimited(sipTxt, tmp, '<', '>');
-
-    // extract phone number
-    if (strncmp(sipTxt, "sip:", 4) == 0) {
-        int i = strcspn(sipTxt, "@") - 4;
-        strncpy(sipNr, &sipTxt[4], i);
-        sipNr[i] = '\0';
-    } else {
-        //sprintf(tmp,"SIP invalid");
-        sprintf(tmp, "SIP does not start with sip:<%s>\n", sipTxt);
-        log_message(tmp);
-    }
 
     getTimestamp(tmp);
 
     // build logentry
-    strcpy(logentry, tmp);
-    strcat(logentry, " ");
-    strcat(logentry, sipNr);
-	strcat(logentry, '\0');
-    if (strlen(PhoneBookText) > 0) {
-        strcat(logentry, " ");
-        strcat(logentry, PhoneBookText);
-    }
+	strcpy(sipTxt, tmp);
+ 	strcat(sipTxt, " ");
+	strcat(sipTxt, PhoneBookText);
     //sanitize string for filename
-    stringRemoveChars(logentry, "\":\\/?*|<>$%&'`{}[]()@");
+    stringRemoveChars(sipTxt, "\":\\/?*|<>$%&'`{}[]()@");
+    strcpx(logentry, sipTxt);
 }*/
 
 #define RESULTSIZE 20
