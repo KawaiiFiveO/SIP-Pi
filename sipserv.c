@@ -1227,7 +1227,8 @@ static void app_exit()
 		
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
-		pjsua_destroy();
+        fclose(call_log);
+        pjsua_destroy();
 		
 		log_message("Done.\n");
 		
@@ -1244,13 +1245,14 @@ static void error_exit(const char *title, pj_status_t status)
 		log_message("App Error Exit\n");
 
 		pjsua_perror("SIP Call", title, status);
-		
+
 		// check if player/recorder is active and stop them
 		player_destroy(play_id);
 		recorder_destroy(rec_id);
 		
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
+        fclose(call_log);
 		pjsua_destroy();
 		
 		exit(1);
