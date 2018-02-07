@@ -915,8 +915,8 @@ static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci
     strcpy(logentry, tmp);
     strcat(logentry, " ");
     strcat(logentry, sipNr);
-	strcat(logentry, '\n');
-	strcat(logentry, '\0');
+	strcat(logentry, "\n");
+	strcat(logentry, "\0");
     /*if (strlen(PhoneBookText) > 0) {
         strcat(filename, " ");
         strcat(filename, PhoneBookText);
