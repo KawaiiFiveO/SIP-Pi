@@ -884,7 +884,7 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 }
 
 #define RESULTSIZE 20
-
+/*
 static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci) {
     // log call info
     char sipTxt[100] = "";
@@ -915,7 +915,6 @@ static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci
     strcpy(logentry, tmp);
     strcat(logentry, " ");
     strcat(logentry, sipNr);
-	strcat(logentry, "\n");
 	strcat(logentry, '\0');
     if (strlen(PhoneBookText) > 0) {
         strcat(logentry, " ");
@@ -923,7 +922,7 @@ static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci
     }
     //sanitize string for filename
     stringRemoveChars(logentry, "\":\\/?*|<>$%&'`{}[]()@");
-}
+}*/
 
 // helper for calling BASH
 static int callBash(char* command, char* result) {
@@ -969,7 +968,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	// log call info
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
-    LogEntryFromCallInfo(logentry,sipNr,ci);
+    /*LogEntryFromCallInfo(logentry,sipNr,ci);
 
     //fprintf(call_log,"call: %s\n",logentry);
 	int fdlog;
@@ -980,7 +979,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	}
 	write(fdlog,logentry,strlen(logentry));
 	close(fdlog);
-
+	*/
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
 	strcpy(lastNumber, sipNr); // remember number as well
