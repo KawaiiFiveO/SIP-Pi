@@ -536,8 +536,8 @@ static void parse_config_file(char *cfg_file)
                 if (!strcasecmp(dtmf_setting, "audio-response"))
                 {
                     d_cfg->audio_response_file = trim_string(arg_val);
-                    FILE *file;
-                    if ((file = fopen(d_cfg->audio_response_file, "r")) == NULL)
+                    FILE *afile;
+                    if ((afile = fopen(d_cfg->audio_response_file, "r")) == NULL)
                     {
                         if (errno == ENOENT)
                         {
@@ -549,6 +549,7 @@ static void parse_config_file(char *cfg_file)
                             log_message("Audio file: some other error occured\n");
                         }
                         d_cfg->audio_response_file=NULL;
+						fclose(afile);
                     }
                     continue;
                 }
@@ -967,6 +968,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	log_message(info);
     logentry = LogEntryFromCallInfo(ci);
 	log_message("Got Call Log Info\n");
+	log_message(logentry);
     fprintf(call_log,"call: %s\n",logentry);
 	log_message("Wrote into File\n");
     free(logentry);
@@ -1227,7 +1229,7 @@ static void app_exit()
 		
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
-        //fclose(call_log);
+        fclose(call_log);
         pjsua_destroy();
 		
 		log_message("Done.\n");
@@ -1253,7 +1255,7 @@ static void error_exit(const char *title, pj_status_t status)
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
         //
-		// fclose(call_log);
+		fclose(call_log);
 		pjsua_destroy();
 		
 		exit(1);
