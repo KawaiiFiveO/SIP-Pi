@@ -291,10 +291,6 @@ int main(int argc, char *argv[])
             }
             exit(1);
         }
-        else
-        {
-            fclose(call_log);
-        }
     }
 	
 	// setup up sip library pjsua
