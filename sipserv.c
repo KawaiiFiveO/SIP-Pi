@@ -909,11 +909,12 @@ char* LogEntryFromCallInfo(pjsua_call_info ci) {
 	log_message("got Timestamp!\n");
     char *tmp = extractdelimited_new(ci.remote_info.ptr, '\"', '\"',&length);
 	log_message("Retrieved Phone Number for log");
-    char* result = calloc(length+1+20, sizeof(char));
+    char* result = calloc(length+1+20+1, sizeof(char));
 	log_message("Calloc done\n");
     strcpy(result,timestamp);
 	log_message("Timestamp in call-info-arr\n");
-    strcat(result,tmp);
+    strcat(result," ");
+	strcat(result,tmp);
 	log_message("Added phone nr to arr\n");
     free(tmp);
     return result;
