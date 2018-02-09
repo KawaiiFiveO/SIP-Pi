@@ -860,6 +860,7 @@ static void stringRemoveChars(char *string, char *spanset) {
 	}
 }
 
+//TODO: Redo this function with calloc, similar to LogEntryFromCallInfo
 static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci) {
 	// log call info
 	char sipTxt[100] = "";
@@ -906,16 +907,11 @@ char* LogEntryFromCallInfo(pjsua_call_info ci) {
     // get elements
 	char timestamp[19];
 	getTimestamp(timestamp);
-	log_message("got Timestamp!\n");
     char *tmp = extractdelimited_new(ci.remote_info.ptr, '\"', '\"',&length);
-	log_message("Retrieved Phone Number for log");
     char* result = calloc(length+1+20+1, sizeof(char));
-	log_message("Calloc done\n");
     strcpy(result,timestamp);
-	log_message("Timestamp in call-info-arr\n");
     strcat(result," ");
 	strcat(result,tmp);
-	log_message("Added phone nr to arr\n");
     free(tmp);
     return result;
 }
@@ -966,10 +962,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
     logentry = LogEntryFromCallInfo(ci);
-	log_message("Got Call Log Info\n");
-	log_message(logentry);
     fprintf(call_log,"call: %s\n",logentry);
-	log_message("Wrote into File\n");
     free(logentry);
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
