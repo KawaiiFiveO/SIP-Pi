@@ -549,8 +549,10 @@ static void parse_config_file(char *cfg_file)
                             log_message("Audio file: some other error occured\n");
                         }
                         d_cfg->audio_response_file=NULL;
-						fclose(afile);
                     }
+					else {
+						fclose(afile);
+					}
                     continue;
                 }
 				// check for dtmf tts answer setting
