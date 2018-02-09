@@ -901,7 +901,7 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 }
 
 
-static void LogEntryFromCallInfo(char* logentry, pjsua_call_info ci) {
+char* LogEntryFromCallInfo(pjsua_call_info ci) {
     // log call info
     int length = 0;
     // get elements
@@ -917,7 +917,7 @@ static void LogEntryFromCallInfo(char* logentry, pjsua_call_info ci) {
     strcat(result,tmp);
 	log_message("Added phone nr to arr\n");
     free(tmp);
-    *logentry = *result;
+    return result;
 }
 
 #define RESULTSIZE 20
@@ -965,7 +965,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	// log call info
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
-    LogEntryFromCallInfo(logentry,ci);
+    logentry = LogEntryFromCallInfo(ci);
 	log_message("Got Call Log Info\n");
     fprintf(call_log,"call: %s\n",logentry);
 	log_message("Wrote into File\n");
