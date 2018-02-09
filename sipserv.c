@@ -40,6 +40,7 @@ Lesser General Public License for more details.
 // includes
 #include <fcntl.h>
 #include <signal.h>
+#include <string.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
@@ -276,7 +277,7 @@ int main(int argc, char *argv[])
     if	(app_cfg.log_file)
     {
         log_message("Setting up call log\n");
-		/*call_log = fopen(app_cfg.log_file, "a");
+		call_log = fopen(app_cfg.log_file, "a");
         if (call_log == NULL)
         {
             if (errno == ENOENT)
@@ -293,7 +294,7 @@ int main(int argc, char *argv[])
         else
         {
             fclose(call_log);
-        }*/
+        }
     }
 	
 	// setup up sip library pjsua
@@ -801,17 +802,34 @@ static int synthesize_speech(char *speech, char *file, char* language)
 }
 
 
-static void extractdelimited(char* dest, char* src, char cBeg, char cEnd)
+char* extractdelimited_new(char* src, char cBeg, char cEnd, int* newlen)
 {
 	char* pBeg = strchr(src,cBeg);
 	char* pEnd = strrchr(src,cEnd);
 	if( pBeg == NULL || pEnd == NULL)
 	{
 		// leave dest alone.
-		return;
+		return NULL;
 	}
 	int len = pEnd - pBeg;
+    *newlen = len;
+    char* dest = (char*)calloc(sizeof(char),len+1);
 	strncpy(dest,pBeg+1,len-1);
+    dest[len]='\0';
+    return dest;
+}
+
+static void extractdelimited(char* dest, char* src, char cBeg, char cEnd)
+{
+    char* pBeg = strchr(src,cBeg);
+    char* pEnd = strrchr(src,cEnd);
+    if( pBeg == NULL || pEnd == NULL)
+    {
+        // leave dest alone.
+        return;
+    }
+    int len = pEnd - pBeg;
+    strncpy(dest,pBeg+1,len-1);
 }
 
 static void getTimestamp(char* dest)
@@ -849,7 +867,6 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 
 	char PhoneBookText[100] = "NoEntry";
 	char tmp[100];
-	char* ptr;
 	strcpy(tmp, ci.remote_info.ptr);
 
 	// get elements
@@ -884,25 +901,19 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 }
 
 
-/*static void LogEntryFromCallInfo(char* logentry, char* sipNr, pjsua_call_info ci) {
+static void LogEntryFromCallInfo(char* logentry, pjsua_call_info ci) {
     // log call info
-    char sipTxt[100] = "";
-    char PhoneBookText[100] = "called";
-    char tmp[100];
-    strcpy(tmp, ci.remote_info.ptr);
+    int length = 0;
     // get elements
-    extractdelimited(PhoneBookText, tmp, '\"', '\"');
-
-    getTimestamp(tmp);
-
-    // build logentry
-	strcpy(sipTxt, tmp);
- 	strcat(sipTxt, " ");
-	strcat(sipTxt, PhoneBookText);
-    //sanitize string for filename
-    stringRemoveChars(sipTxt, "\":\\/?*|<>$%&'`{}[]()@");
-    strcpx(logentry, sipTxt);
-}*/
+    char *tmp = extractdelimited_new(ci.remote_info.ptr, '\"', '\"',&length);
+    char timestamp[19];
+    getTimestamp(timestamp);
+    char* result = calloc(length+1+20, sizeof(char));
+    strcpy(result,timestamp);
+    strcat(result,tmp);
+    free(tmp);
+    *logentry = *result;
+}
 
 #define RESULTSIZE 20
 // helper for calling BASH
@@ -932,7 +943,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 {
 	char info[200];
 	char filename[200];
-    char logentry[200];
+    char *logentry=NULL;
 	char sipNr[100] = "";
 
 	// get call infos
@@ -949,18 +960,10 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	// log call info
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
 	log_message(info);
-    /*LogEntryFromCallInfo(logentry,sipNr,ci);
+    LogEntryFromCallInfo(logentry,ci);
 
-    //fprintf(call_log,"call: %s\n",logentry);
-	int fdlog;
-	fdlog=open(app_cfg.log_file,O_WRONLY | O_CREAT);
-	if(fdlog < 0)
-	{
-		log_message("Error creating call log");
-	}
-	write(fdlog,logentry,strlen(logentry));
-	close(fdlog);
-	*/
+    fprintf(call_log,"call: %s\n",logentry);
+    free(logentry);
 	// store filename for call into global variable for recorder
 	strcpy(rec_ans_file, filename);
 	strcpy(lastNumber, sipNr); // remember number as well
