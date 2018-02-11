@@ -532,6 +532,7 @@ static void parse_config_file(char *cfg_file)
                 //check for audio response - has higher priority than tts
                 if (!strcasecmp(dtmf_setting, "audio-response"))
                 {
+					errno = 0;
                     d_cfg->audio_response_file = trim_string(arg_val);
                     FILE *afile;
                     if ((afile = fopen(d_cfg->audio_response_file, "r")) == NULL)
