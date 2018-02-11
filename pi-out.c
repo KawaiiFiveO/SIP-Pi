@@ -23,7 +23,7 @@ PI_THREAD (raspi_output)
 
 int initPi(void)
 {
-    wiringPiSetupGpio();
+    wiringPiSetup();
     pinMode(1,OUTPUT);
     pinMode(4,OUTPUT);
     pinMode(5,OUTPUT);
@@ -32,13 +32,17 @@ int initPi(void)
     int success = piThreadCreate(raspi_output);
     return success;
 }
-void nibbleOutputGPIO(int nibbleValue, int GPIO0,int GPIO1,int GPIO2,int GPIO3)
+void nibbleOutputGPIO(short nibbleValue, short GPIO0,short GPIO1,short GPIO2,short GPIO3)
 {
-    int mask = 1;
-    digitalWrite(GPIO0,(mask&&nibbleValue));
-    digitalWrite(GPIO1,(mask&&(nibbleValue>>1)));
-    digitalWrite(GPIO2,(mask&&(nibbleValue>>2)));
-    digitalWrite(GPIO3,(mask&&(nibbleValue>>3)));
+    short mask = 1;
+    short temp = nibbleValue;
+    digitalWrite(GPIO0,(mask&&temp);
+    temp = temp >> 1;
+    digitalWrite(GPIO1,(mask&&temp);
+    temp = temp >> 1;
+    digitalWrite(GPIO2,(mask&&temp);
+    temp = temp >> 1;
+    digitalWrite(GPIO3,(mask&&temp);
 }
 void togglePin(int pin)
 {
