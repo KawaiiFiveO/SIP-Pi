@@ -48,7 +48,7 @@ Lesser General Public License for more details.
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
 #include "pi-out.c"
-//#include "../../../Downloads/pjproject-2.7.1/pjproject-2.7.1/pjlib/include/pj/compat/string.h"
+
 
 
 // some espeak options
@@ -973,7 +973,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	rec_ans_file = FileNameFromCallInfo(/*filename,*/sipNr,ci,&fileNameLength);
 
 	// log call info
-	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
+	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,rec_ans_file);
 	log_message(info);
     logentry = LogEntryFromCallInfo(ci);
     fprintf(call_log,"call: %s\n",logentry);
