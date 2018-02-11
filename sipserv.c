@@ -1236,7 +1236,7 @@ static void app_exit()
 		pjsua_call_hangup_all();
         fclose(call_log);
         pjsua_destroy();
-		
+		free(rec_ans_file);
 		log_message("Done.\n");
 		
 		exit(0);
@@ -1256,7 +1256,7 @@ static void error_exit(const char *title, pj_status_t status)
 		// check if player/recorder is active and stop them
 		player_destroy(play_id);
 		recorder_destroy(rec_id);
-		
+		free(rec_ans_file);
 		// hangup open calls and stop pjsua
 		pjsua_call_hangup_all();
         //
