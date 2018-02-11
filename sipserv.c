@@ -810,10 +810,10 @@ char* extractdelimited_new(char* src, char cBeg, char cEnd, int* newlen)
 		// leave dest alone.
 		return NULL;
 	}
-	int len = pEnd - pBeg;
+	int len = pEnd - pBeg; //calculate length
     *newlen = len;
     char* dest = (char*)calloc(sizeof(char),len+1);
-	strncpy(dest,pBeg+1,len-1);
+	strncpy(dest,pBeg+1,len-1); //copy part of other string into this one
     dest[len]='\0';
     return dest;
 }
@@ -863,6 +863,7 @@ static void stringRemoveChars(char *string, char *spanset) {
 //TODO: Redo this function with calloc, similar to LogEntryFromCallInfo
 static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci) {
 	// log call info
+	/*
 	char sipTxt[100] = "";
 
 	char PhoneBookText[100] = "NoEntry";
@@ -872,32 +873,41 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 	// get elements
 	extractdelimited(PhoneBookText, tmp, '\"', '\"');
 	extractdelimited(sipTxt, tmp, '<', '>');
+	*/
+    int lenSipTxt = 0;
+    int lenPBT = 0;
+    char* PhoneBookText_new = NULL;
+    char* sipTxt_new = NULL;
+
+    PhoneBookText_new = extractdelimited_new(ci.remote_info.ptr,'\"','\"', &lenPBT);
+    sipTxt_new = extractdelimited_new(ci.remote_info.ptr,'<','>',&lenSipTxt);
 
 	// extract phone number
-	if (strncmp(sipTxt, "sip:", 4) == 0) {
-		int i = strcspn(sipTxt, "@") - 4;
-		strncpy(sipNr, &sipTxt[4], i);
+	if (strncmp(sipTxt_new, "sip:", 4) == 0) {
+		int i = strcspn(sipTxt_new, "@") - 4;
+		strncpy(sipNr, sipTxt_new[4], i);
 		sipNr[i] = '\0';
 	} else {
 		//sprintf(tmp,"SIP invalid");
-		sprintf(tmp, "SIP does not start with sip:<%s>\n", sipTxt);
-		log_message(tmp);
+		printf(/*tmp,*/ "SIP Invalid\nSIP does not start with sip:<%s>\n", sipTxt_new);
+		//log_message(tmp);
 	}
 
 	getTimestamp(tmp);
 
-	// build filename
-	strcpy(filename, tmp);
-	strcat(filename, " ");
-	strcat(filename, sipNr);
+	char* generateFilename = (char*)calloc(sizeof(char),lenPBT+lenSipTxt+1+1);
+	// build filenametmp
+	//strcpy(generateFilename, tmp);
+	//strcat(filename, " ");
+	strcat(generateFilename, sipNr);
 	if (strlen(PhoneBookText) > 0) {
-		strcat(filename, " ");
-		strcat(filename, PhoneBookText);
+		strcat(generateFilename, " ");
+		strcat(generateFilename, PhoneBookText);
 	}
-	strcat(filename, ".wav");
+	strcat(generateFilename, ".wav");
 
 	//sanitize string for filename
-	stringRemoveChars(filename, "\":\\/*?|<>$%&'`{}[]()@");
+	stringRemoveChars(generateFilename, "\":\\/*?|<>$%&'`{}[]()@");
 }
 
 
