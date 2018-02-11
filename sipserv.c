@@ -1103,24 +1103,28 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 	pjsua_call_get_info(call_id, &ci);
 	
 	// work on detected dtmf digit
+    //prepare for RPi GPIO
+    //output encoded like in MT8870D IC
 	int dtmf_key = 0;
-            if (digit >= 48 && digit <=57) {
-            dtmf_key = digit - 48;
+            if (digit >= 49 && digit <=57) {
+            dtmf_key = digit - 48; //1-9 button
             }
-            else
-            {
-                if (digit==35)
-                {
-                    dtmf_key=15; // # button
-                }else {
-                    if (digit == 42) {
-                        dtmf_key = 14; // *  button
-                    }
-                    else
-                    {
-                        if (digit >= 65 && digit <= 68)
-                        {
-                            dtmf_key = digit-55; // possible A,B,C,D Buttons according to DTMF standart
+            else {
+                if (digit == 48) {
+                    dtmf_key = 10; //0 button
+                } else {
+                    if (digit == 35) {
+                        dtmf_key = 12; // # button
+                    } else {
+                        if (digit == 42) {
+                            dtmf_key = 11; // *  button
+                        } else {
+                            if (digit >= 65 && digit <= 67) {
+                                dtmf_key = digit - 52; // possible A,B,C Buttons according to DTMF standart
+                            }
+                            if (digit == 68) {
+                                dtmf_key = 0; //possibe D button;
+                            }
                         }
                     }
                 }
