@@ -335,7 +335,7 @@ static void usage(int error)
     puts  ("");
 	puts  ("Optional options:");
 	puts  ("  -s=int       Silent mode (hide info messages) (0||1)");
-	puts  ("");
+	puts  ("  -ipv6=int IPv6 enabled (0||1)");
 	puts  ("");
 	puts  ("Config file:");
 	puts  ("Mandatory options:");
@@ -347,6 +347,9 @@ static void usage(int error)
 	puts  (" and at least one dtmf configuration (X = dtmf-key index):");
 	puts  ("  dtmf.X.active=int           Set dtmf-setting active (0||1).");
 	puts  ("  dtmf.X.description=string   Set description.");
+	puts  ("  dtmf.X.audio-response=string ");
+	puts  ("  response wav file to play; tts will not be read, if this parameter is given.");
+	puts  ("              file format is Microsoft WAV (signed 16 bit) Mono, 22 kHz");
 	puts  ("  dtmf.X.tts-intro=string     Set tts intro.");
 	puts  ("  dtmf.X.tts-answer=string    Set tts answer.");
 	puts  ("  dtmf.X.cmd=string           Set dtmf command.");
@@ -534,7 +537,7 @@ static void parse_config_file(char *cfg_file)
                 if (!strcasecmp(dtmf_setting, "audio-response"))
                 {
 					errno = 0;
-                    d_cfg->audio_response_file = trim_string(arg_val);
+					d_cfg->audio_response_file = trim_string(arg_val);
 					if (strlen(d_cfg->audio_response_file)>2) {
 						FILE *afile;
 						if ((afile = fopen(d_cfg->audio_response_file, "r+")) == NULL) {
@@ -818,19 +821,6 @@ char* extractdelimited_new(char* src, char cBeg, char cEnd, int* newlen)
     return dest;
 }
 
-static void extractdelimited(char* dest, char* src, char cBeg, char cEnd)
-{
-    char* pBeg = strchr(src,cBeg);
-    char* pEnd = strrchr(src,cEnd);
-    if( pBeg == NULL || pEnd == NULL)
-    {
-        // leave dest alone.
-        return;
-    }
-    int len = pEnd - pBeg;
-    strncpy(dest,pBeg+1,len-1);
-}
-
 static void getTimestamp(char* dest)
 {
 
@@ -860,20 +850,8 @@ static void stringRemoveChars(char *string, char *spanset) {
 	}
 }
 
-//TODO: Redo this function with calloc, similar to LogEntryFromCallInfo
 char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, int* fNameLength) {
 	// log call info
-	/*
-	char sipTxt[100] = "";
-
-	char PhoneBookText[100] = "NoEntry";
-	char tmp[100];
-	strcpy(tmp, ci.remote_info.ptr);
-
-	// get elements
-	extractdelimited(PhoneBookText, tmp, '\"', '\"');
-	extractdelimited(sipTxt, tmp, '<', '>');
-	*/
     int lenSipTxt = 0;
     int lenPBT = 0;
     char* PhoneBookText_new = NULL;
@@ -910,6 +888,8 @@ char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, i
 
 	//sanitize string for filename
 	stringRemoveChars(generateFilename, "\":\\/*?|<>$%&'`{}[]()@");
+	free(PhoneBookText_new);
+	free(sipTxt_new);
     return generateFilename;
 }
 
@@ -1182,7 +1162,7 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 			}
 			else
 				{
-					if (!error && noaudiofile) //when no audio file played
+					if ((!error) && (noaudiofile)) //when no audio file played
 					{
 						player_destroy(play_id);
 						recorder_destroy(rec_id);
