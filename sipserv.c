@@ -48,7 +48,7 @@ Lesser General Public License for more details.
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
 #include "pi-out.c"
-#include "../../../Downloads/pjproject-2.7.1/pjproject-2.7.1/pjlib/include/pj/compat/string.h"
+//#include "../../../Downloads/pjproject-2.7.1/pjproject-2.7.1/pjlib/include/pj/compat/string.h"
 
 
 // some espeak options
