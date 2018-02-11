@@ -48,6 +48,7 @@ Lesser General Public License for more details.
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
 #include "pi-out.c"
+#include "../../../Downloads/pjproject-2.7.1/pjproject-2.7.1/pjlib/include/pj/compat/string.h"
 
 
 // some espeak options
@@ -95,7 +96,7 @@ struct app_config {
 // global holder vars for further app arguments
 char *tts_file = "play.wav";
 char *tts_answer_file = "ans.wav";
-char rec_ans_file[100] = "rec.wav"; // will be overwritten!
+char *rec_ans_file=NULL; // will be overwritten!
 char lastNumber[100] = "000"; // will be overwritten!
 
 
@@ -861,7 +862,7 @@ static void stringRemoveChars(char *string, char *spanset) {
 }
 
 //TODO: Redo this function with calloc, similar to LogEntryFromCallInfo
-static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci) {
+char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, int* fNameLength) {
 	// log call info
 	/*
 	char sipTxt[100] = "";
@@ -885,7 +886,7 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 	// extract phone number
 	if (strncmp(sipTxt_new, "sip:", 4) == 0) {
 		int i = strcspn(sipTxt_new, "@") - 4;
-		strncpy(sipNr, sipTxt_new[4], i);
+		strncpy(sipNr, &sipTxt_new[4], i);
 		sipNr[i] = '\0';
 	} else {
 		//sprintf(tmp,"SIP invalid");
@@ -893,21 +894,24 @@ static void FileNameFromCallInfo(char* filename, char* sipNr, pjsua_call_info ci
 		//log_message(tmp);
 	}
 
-	getTimestamp(tmp);
-
-	char* generateFilename = (char*)calloc(sizeof(char),lenPBT+lenSipTxt+1+1);
+	char timestamp[19];
+	getTimestamp(timestamp);
+    *fNameLength = lenPBT+lenSipTxt+1+1;
+	char* generateFilename = (char*)calloc(sizeof(char),(*fNameLength+20));
 	// build filenametmp
 	//strcpy(generateFilename, tmp);
 	//strcat(filename, " ");
+	strcpy(generateFilename, timestamp);
 	strcat(generateFilename, sipNr);
-	if (strlen(PhoneBookText) > 0) {
+	if (strlen(PhoneBookText_new) > 0 && PhoneBookText_new != NULL) {
 		strcat(generateFilename, " ");
-		strcat(generateFilename, PhoneBookText);
+		strcat(generateFilename, PhoneBookText_new);
 	}
 	strcat(generateFilename, ".wav");
 
 	//sanitize string for filename
 	stringRemoveChars(generateFilename, "\":\\/*?|<>$%&'`{}[]()@");
+    return generateFilename;
 }
 
 
@@ -953,10 +957,10 @@ static int callBash(char* command, char* result) {
 static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_rx_data *rdata)
 {
 	char info[200];
-	char filename[200];
-    char *logentry=NULL;
+	//char* filename=NULL;
+    char* logentry=NULL;
 	char sipNr[100] = "";
-
+    int fileNameLength = 0;
 	// get call infos
 	pjsua_call_info ci;
 	pjsua_call_get_info(call_id, &ci);
@@ -966,7 +970,7 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
 	
 	current_call = call_id;
 
-	FileNameFromCallInfo(filename,sipNr,ci);
+	rec_ans_file = FileNameFromCallInfo(/*filename,*/sipNr,ci,&fileNameLength);
 
 	// log call info
 	sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,filename);
@@ -975,7 +979,6 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
     fprintf(call_log,"call: %s\n",logentry);
     free(logentry);
 	// store filename for call into global variable for recorder
-	strcpy(rec_ans_file, filename);
 	strcpy(lastNumber, sipNr); // remember number as well
 
     // fire external job to check, if we take the call
