@@ -535,22 +535,19 @@ static void parse_config_file(char *cfg_file)
                 {
 					errno = 0;
                     d_cfg->audio_response_file = trim_string(arg_val);
-                    FILE *afile;
-                    if ((afile = fopen(d_cfg->audio_response_file, "r+")) == NULL)
-                    {
-                        if (errno == ENOENT)
-                        {
-                            log_message("Audio file doesn't exist\n");
-                        }
-                        else
-                        {
-                            // Check for other errors too, like EACCES and EISDIR
-                            log_message("Audio file: some other error occured\n");
-                        }
-                        d_cfg->audio_response_file=NULL;
-                    }
-					else {
-						fclose(afile);
+					if (d_cfg->audio_response_file) {
+						FILE *afile;
+						if ((afile = fopen(d_cfg->audio_response_file, "r+")) == NULL) {
+							if (errno == ENOENT) {
+								log_message("Audio file doesn't exist\n");
+							} else {
+								// Check for other errors too, like EACCES and EISDIR
+								log_message("Audio file: some other error occured\n");
+							}
+							d_cfg->audio_response_file = NULL;
+						} else {
+							fclose(afile);
+						}
 					}
                     continue;
                 }
