@@ -536,7 +536,7 @@ static void parse_config_file(char *cfg_file)
 					errno = 0;
                     d_cfg->audio_response_file = trim_string(arg_val);
                     FILE *afile;
-                    if ((afile = fopen(d_cfg->audio_response_file, "r")) == NULL)
+                    if ((afile = fopen(d_cfg->audio_response_file, "r+")) == NULL)
                     {
                         if (errno == ENOENT)
                         {
