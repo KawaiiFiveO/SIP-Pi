@@ -34,15 +34,15 @@ int initPi(void)
 }
 void nibbleOutputGPIO(short nibbleValue, short GPIO0,short GPIO1,short GPIO2,short GPIO3)
 {
-    short mask = 1;
-    short temp = nibbleValue;
-    digitalWrite(GPIO0,(mask&&temp));
+    unsigned short mask = 1;
+    unsigned short temp = nibbleValue;
+    digitalWrite(GPIO0,(mask&temp));
     temp = temp >> 1;
-    digitalWrite(GPIO1,(mask&&temp));
+    digitalWrite(GPIO1,(mask&temp));
     temp = temp >> 1;
-    digitalWrite(GPIO2,(mask&&temp));
+    digitalWrite(GPIO2,(mask&temp));
     temp = temp >> 1;
-    digitalWrite(GPIO3,(mask&&temp));
+    digitalWrite(GPIO3,(mask&temp));
 }
 void togglePin(int pin)
 {
