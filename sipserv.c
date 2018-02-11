@@ -874,11 +874,12 @@ char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, i
 	char timestamp[19];
 	getTimestamp(timestamp);
     *fNameLength = lenPBT+lenSipTxt+1+1;
-	char* generateFilename = (char*)calloc(sizeof(char),(*fNameLength+20));
+	char* generateFilename = (char*)calloc(sizeof(char),(*fNameLength+20+1));
 	// build filenametmp
 	//strcpy(generateFilename, tmp);
 	//strcat(filename, " ");
 	strcpy(generateFilename, timestamp);
+    strcat(generateFilename," ");
 	strcat(generateFilename, sipNr);
 	if (strlen(PhoneBookText_new) > 0 && PhoneBookText_new != NULL) {
 		strcat(generateFilename, " ");
