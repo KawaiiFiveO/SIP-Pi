@@ -227,7 +227,7 @@ int main(int argc, char *argv[])
 	if	(app_cfg.announcement_file)
 	{
 		log_message("Announcement mode\n");
-
+        errno = 0;
 		FILE *file;
 		if ((file = fopen(app_cfg.announcement_file, "r")) == NULL)
 		{
@@ -277,6 +277,7 @@ int main(int argc, char *argv[])
 	log_message("Done.\n");
     if	(app_cfg.log_file)
     {
+        errno = 0;
         log_message("Setting up call log\n");
 		call_log = fopen(app_cfg.log_file, "a");
         if (call_log == NULL)
