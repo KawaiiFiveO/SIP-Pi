@@ -24,11 +24,11 @@ PI_THREAD (raspi_output)
 int initPi(void)
 {
     wiringPiSetup();
-    pinMode(1,OUTPUT);
-    pinMode(4,OUTPUT);
-    pinMode(5,OUTPUT);
-    pinMode(6,OUTPUT);
+    pinMode(8,OUTPUT);
     pinMode(7,OUTPUT);
+    pinMode(27,OUTPUT);
+    pinMode(28,OUTPUT);
+    pinMode(3,OUTPUT);
     int success = piThreadCreate(raspi_output);
     return success;
 }
