@@ -16,8 +16,8 @@ PI_THREAD (raspi_output)
 {
     if (dtmf_trigger) {
         dtmf_trigger = 0;
-        nibbleOutputGPIO(dtmf_value, 1, 4, 5, 6);
-        togglePin(7);
+        nibbleOutputGPIO(dtmf_value, 8, 7, 27, 28);
+        togglePin(3);
     }
 }
 
