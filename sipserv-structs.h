@@ -3,6 +3,9 @@
 //
 
 // struct for app dtmf settings
+
+#define MAX_DTMF_SETTINGS 16
+
 struct dtmf_config {
     int id;
     int active;
