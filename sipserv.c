@@ -92,6 +92,10 @@ struct app_config {
 	char *log_file;
     char *config_file;
 	struct dtmf_config dtmf_cfg[MAX_DTMF_SETTINGS];
+    short gpio_enable;
+    short gpio_port[4];
+    short interrupt_send_port;
+    short dtmf_encoding;
 } app_cfg;  
 
 // global holder vars for further app arguments
@@ -142,17 +146,21 @@ static void error_exit(const char *, pj_status_t);
 // main application
 int main(int argc, char *argv[])
 {
-    int success = initPi();
-    if (success != 0)
-    {
-        log_message("Error while initializing Pi Output");
-        app_exit();
+    if (app_cfg.gpio_enable) {
+        int success = initPi();
+        log_message("Initialized Pi Output successfully");
+        if (success != 0) {
+            log_message("Error while initializing Pi Output");
+            app_exit();
+        }
     }
 	// first set some default values
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
     app_cfg.ipv6=0;
     app_cfg.port=5060;
+    app_cfg.gpio_enable=0;
+    app_cfg.dtmf_encoding=0;
 
 
 	// print infos
@@ -225,6 +233,13 @@ int main(int argc, char *argv[])
 		usage(2); // fixme does not show after file has been opened.
 		exit(1);
 	}
+    if (!app_cfg.gpio_enable && (!app_cfg.gpio_port[0] || !app_cfg.gpio_port[1] ||!app_cfg.gpio_port[2] ||!app_cfg.gpio_port[3] || !app_cfg.interrupt_send_port))
+    {
+        log_message("Not enough stuff in config file\nsee sipserv -h\n");
+        // display usage info and exit app
+        usage(3); // fixme does not show after file has been opened.
+        exit(1);
+    }
 	
 	if	(app_cfg.announcement_file)
 	{
@@ -328,6 +343,11 @@ static void usage(int error)
 		puts("Missing mandatory items in config file.");
 		puts  ("");
 	}
+    if (error == 3)
+    {
+        puts("Missing mandatory infos about GPIO ports");
+        puts  ("");
+    }
 	puts  ("Usage:");
     puts  ("  sipserv [options]");
     puts  ("");
@@ -364,7 +384,17 @@ static void usage(int error)
 	puts  ("              should return a \"1\" as first char, if yes.");
 	puts  ("              the wildcard # will be replaced with the calling phone number in the command");
 	puts  ("  am=string   aftermath: command to be executed after call ends. Will be called with two parameters: $1 = Phone number $2 = recorded file name");
-	
+    puts  ("options for DTMF digit output on Raspberry Pi GPIO");
+    puts  ("The GPIO output function is based on wiringPi and uses the wiringPi numering scheme.");
+    puts  ("It outputs the digits as 4-bit binary number.");
+    puts  ("When GPIO output has been enabled, you have to define all 4 output ports and the interrupt port.");
+    puts  ("To define them, put this into the config file:");
+    puts  ("gpio-0=int port number");
+    puts  ("gpio-1=int port number");
+    puts  ("gpio-2=int port number");
+    puts  ("gpio-3=int Port number");
+    puts  ("gpio-interrupt=int port number");
+    puts  ("dtmf-encoding=int Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)");
 	fflush(stdout);
 }
 
@@ -463,7 +493,41 @@ static void parse_config_file(char *cfg_file)
 				app_cfg.record_calls = atoi(val);
 				continue;
 			}
-			
+            if (!strcasecmp(arg, "dtmf-encoding")) //0 = linear, 1 = MT8870 standart
+            {
+                app_cfg.dtmf_encoding = atoi(val);
+                continue;
+            }
+            if (!strcasecmp(arg, "gpio-en"))
+            {
+                app_cfg.gpio_enable = atoi(val);
+                continue;
+            }
+            if (!strcasecmp(arg, "gpio-0"))
+            {
+                app_cfg.gpio_port[0] = atoi(val);
+                continue;
+            }
+            if (!strcasecmp(arg, "gpio-1"))
+            {
+                app_cfg.gpio_port[1] = atoi(val);
+                continue;
+            }
+            if (!strcasecmp(arg, "gpio-2"))
+            {
+                app_cfg.gpio_port[2] = atoi(val);
+                continue;
+            }
+            if (!strcasecmp(arg, "gpio-3"))
+            {
+                app_cfg.gpio_port[3] = atoi(val);
+                continue;
+            }
+            if (!strcasecmp(arg, "gpio-interrupt"))
+            {
+                app_cfg.interrupt_send_port = atoi(val);
+                continue;
+            }
 			// check for announcement file argument
 			if (!strcasecmp(arg, "af"))
 			{
@@ -1113,32 +1177,59 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
     //prepare for RPi GPIO
     //output encoded like in MT8870D IC
 	int dtmf_key = 0;
-            if (digit >= 49 && digit <=57) {
+    if (app_cfg.dtmf_encoding==1) {
+        if (digit >= 49 && digit <= 57) {
             dtmf_key = digit - 48; //1-9 button
-            }
-            else {
-                if (digit == 48) {
-                    dtmf_key = 10; //0 button
+        } else {
+            if (digit == 48) {
+                dtmf_key = 10; //0 button
+            } else {
+                if (digit == 35) {
+                    dtmf_key = 12; // # button
                 } else {
-                    if (digit == 35) {
-                        dtmf_key = 12; // # button
+                    if (digit == 42) {
+                        dtmf_key = 11; // *  button
                     } else {
-                        if (digit == 42) {
-                            dtmf_key = 11; // *  button
-                        } else {
-                            if (digit >= 65 && digit <= 67) {
-                                dtmf_key = digit - 52; // possible A,B,C Buttons according to DTMF standart
-                            }
-                            if (digit == 68) {
-                                dtmf_key = 0; //possibe D button;
-                            }
+                        if (digit >= 65 && digit <= 67) {
+                            dtmf_key = digit - 52; // possible A,B,C Buttons according to DTMF standart
+                        }
+                        if (digit == 68) {
+                            dtmf_key = 0; //possibe D button;
                         }
                     }
                 }
             }
+        }
+    }
+    else
+    {
+        if (app_cfg.dtmf_encoding==0)
+        {
+            if (digit >= 48 && digit <= 57) {
+                dtmf_key = digit - 48; //0-9 button
+            }
+            else
+            {
+                    if (digit == 35)
+                    {
+                        dtmf_key = 15; // # button
+                    } else {
+                        if (digit == 42) {
+                            dtmf_key = 14; // *  button
+                        } else {
+                            if (digit >= 65 && digit <= 68) {
+                                dtmf_key = digit - 52-3; // possible A,B,C Buttons according to DTMF standart
+                            }
+                        }
+                    }
+            }
+        }
+    }
     dtmf_value=dtmf_key;
-    dtmf_trigger=1;
-    piThreadCreate(raspi_output);
+    if (app_cfg.gpio_enable) {
+        dtmf_trigger = 1;
+        piThreadCreate(raspi_output);
+    }
 	
 	char info[100];
 	sprintf(info, "DTMF command detected: %i\n", dtmf_key);

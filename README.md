@@ -59,7 +59,10 @@ With the sample configuration you can have a blacklist and only the special (=bl
 
 * tts=string  _String to be read as a intro message_
 
-###_and at least one dtmf configuration (X = dtmf-key index):_   
+###_determine DTMF Key digit encoding_
+** dtmf-encoding=int _Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)_
+
+###_and at least one dtmf key configuration (X = dtmf-key index):_
 * dtmf.X.active=int           _Set dtmf-setting active (0/1)._   
 * dtmf.X.description=string   _Set description._
 * dtmf.X.audio-response=      _Set audio response wav file to play; tts for that DTMF key will not be read, if this parameter is given. File format is Microsoft WAV (signed 16 bit) Mono, 22 kHz;_
@@ -72,6 +75,20 @@ With the sample configuration you can have a blacklist and only the special (=bl
 * af=string   _announcement wav file to play; tts will not be read, if this parameter is given. File format is Microsoft WAV (signed 16 bit) Mono, 22 kHz;_ 
 * cmd=string  _command to check if the call should be taken; the wildcard # will be replaced with the calling phone number; should return a "1" as first char, if you want to take the call._
 * am=string   _aftermath: command to be executed after call ends. Will be called with two parameters: $1 = Phone number $2 = recorded file name_
+* gpio-en=int _enable output of DTMF digits on Raspberry Pi wiringPi GPIO_
+
+###options for DTMF digit output on Raspberry Pi GPIO
+The GPIO output function is based on wiringPi and uses the wiringPi numering scheme.
+It outputs the digits as 4-bit binary number.
+When GPIO output has been enabled, you have to define all 4 output ports and the interrupt port.
+To define them, put this into the config file:
+* gpio-0=int _Port number goes here instead of int_
+* gpio-1=int _Port number goes here instead of int_
+* gpio-2=int _Port number goes here instead of int_
+* gpio-3=int _Port number goes here instead of int_
+* gpio-interrupt=int  _Port number goes here instead of int_
+The interrupt port is often needed by the microcontroller that reads those digits.
+Connect it to the interrupt port of your other microcontroller and configure that controller as needed to respond to the interrupt.
 
 ##a sample configuration can be found in sipserv-sample.cfg
   
