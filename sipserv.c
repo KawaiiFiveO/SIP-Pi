@@ -79,6 +79,7 @@ struct dtmf_config {
 struct app_config {
     int ipv6;
 	char *sip_domain;
+    int port;
 	char *sip_user;
 	char *sip_password;
 	char *language;
@@ -151,6 +152,7 @@ int main(int argc, char *argv[])
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
     app_cfg.ipv6=0;
+    app_cfg.port=5060;
 
 
 	// print infos
@@ -443,7 +445,11 @@ static void parse_config_file(char *cfg_file)
 				app_cfg.sip_password = trim_string(arg_val);
 				continue;
 			}
-			
+            //check for port config
+            if (!strcasecmp(arg, "port")) {
+                app_cfg.port = atoi(val);
+                continue;
+            }
 			// check for language argument
 			if (!strcasecmp(arg, "ln"))
 			{
@@ -667,7 +673,7 @@ static void setup_sip(void)
         transport_type = PJSIP_TRANSPORT_UDP6;
         log_message("Enabling IPv6\n");
     }
-    udpcfg.port = 5060;
+    udpcfg.port = app_cfg.port;
     status = pjsua_transport_create(transport_type, &udpcfg, &udp_tp_id);
 	if (status != PJ_SUCCESS) error_exit("Error creating transport", status);
 	
