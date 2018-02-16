@@ -48,8 +48,6 @@ Lesser General Public License for more details.
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
 #include "pi-out.c"
-#include "sipserv-structs.h"
-
 
 
 // some espeak options

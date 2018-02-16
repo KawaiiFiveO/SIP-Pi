@@ -4,6 +4,7 @@
 
 #include <wiringPi.h>
 #include "sipserv-structs.h"
+
 int initPi(void);
 void nibbleOutputGPIO(short, short, short, short, short);
 void togglePin(short);
