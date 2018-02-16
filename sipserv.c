@@ -110,14 +110,7 @@ static void error_exit(const char *, pj_status_t);
 // main application
 int main(int argc, char *argv[])
 {
-    if (app_cfg.gpio_enable) {
-        int success = initPi();
-        log_message("Initialized Pi Output successfully");
-        if (success != 0) {
-            log_message("Error while initializing Pi Output");
-            app_exit();
-        }
-    }
+
 	// first set some default values
 	app_cfg.record_calls = 0;
 	app_cfg.silent_mode = 0;
@@ -125,7 +118,6 @@ int main(int argc, char *argv[])
     app_cfg.port=5060;
     app_cfg.gpio_enable=0;
     app_cfg.dtmf_encoding=0;
-
 
 	// print infos
 	log_message("SIP Call - Simple TTS/DTMF-based answering machine\n");
@@ -190,6 +182,7 @@ int main(int argc, char *argv[])
 	// read app configuration from config file
 	parse_config_file(app_cfg.config_file);
 
+
 	if (!app_cfg.sip_domain || !app_cfg.sip_user || !app_cfg.sip_password || !app_cfg.language)
 	{
 		log_message("Not enough stuff in config file\nsee sipserv -h\n");
@@ -199,10 +192,19 @@ int main(int argc, char *argv[])
 	}
     if (!app_cfg.gpio_enable && (!app_cfg.gpio_port[0] || !app_cfg.gpio_port[1] ||!app_cfg.gpio_port[2] ||!app_cfg.gpio_port[3] || !app_cfg.interrupt_send_port))
     {
-        log_message("Not enough stuff in config file\nsee sipserv -h\n");
+        log_message("Not enough stuff about GPIO in config file\nsee sipserv -h\n");
         // display usage info and exit app
         usage(3); // fixme does not show after file has been opened.
         exit(1);
+    }
+
+    if (app_cfg.gpio_enable) {
+        int success = initPi();
+        log_message("Initialized Pi Output successfully");
+        if (success != 0) {
+            log_message("Error while initializing Pi Output");
+            app_exit();
+        }
     }
 	
 	if	(app_cfg.announcement_file)
