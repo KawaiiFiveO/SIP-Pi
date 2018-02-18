@@ -47,8 +47,11 @@ Lesser General Public License for more details.
 #include <time.h>
 #include <errno.h>
 #include <pjsua-lib/pjsua.h>
+#ifdef gpioenable
 #include "pi-out.c"
-
+#else
+#include "sipserv-structs.h"
+#endif
 
 // some espeak options
 #define ESPEAK_AMPLITUDE 100
@@ -128,7 +131,7 @@ int main(int argc, char *argv[])
 	signal(SIGKILL, signal_handler);
 
 	// init dtmf settings (dtmf zero is not reserved for anything!)
-	int i;
+	short i;
 	for (i = 0; i < MAX_DTMF_SETTINGS; i++)
 	{
 		struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[i];
@@ -190,6 +193,7 @@ int main(int argc, char *argv[])
 		usage(2); // fixme does not show after file has been opened.
 		exit(1);
 	}
+#ifdef gpioenable
     if (!app_cfg.gpio_enable && (!app_cfg.gpio_port[0] || !app_cfg.gpio_port[1] ||!app_cfg.gpio_port[2] ||!app_cfg.gpio_port[3] || !app_cfg.interrupt_send_port))
     {
         log_message("Not enough stuff about GPIO in config file\nsee sipserv -h\n");
@@ -206,7 +210,7 @@ int main(int argc, char *argv[])
             app_exit();
         }
     }
-	
+#endif
 	if	(app_cfg.announcement_file)
 	{
 		log_message("Announcement mode\n");
@@ -309,11 +313,13 @@ static void usage(int error)
 		puts("Missing mandatory items in config file.");
 		puts  ("");
 	}
+#ifdef gpioenable
     if (error == 3)
     {
         puts("Missing mandatory infos about GPIO ports");
         puts  ("");
     }
+#endif
 	puts  ("Usage:");
     puts  ("  sipserv [options]");
     puts  ("");
@@ -350,6 +356,7 @@ static void usage(int error)
 	puts  ("              should return a \"1\" as first char, if yes.");
 	puts  ("              the wildcard # will be replaced with the calling phone number in the command");
 	puts  ("  am=string   aftermath: command to be executed after call ends. Will be called with two parameters: $1 = Phone number $2 = recorded file name");
+#ifdef gpioenable
     puts  ("options for DTMF digit output on Raspberry Pi GPIO");
     puts  ("The GPIO output function is based on wiringPi and uses the wiringPi numering scheme.");
     puts  ("It outputs the digits as 4-bit binary number.");
@@ -361,6 +368,7 @@ static void usage(int error)
     puts  ("gpio-3=int Port number");
     puts  ("gpio-interrupt=int port number");
     puts  ("dtmf-encoding=int Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)");
+#endif
 	fflush(stdout);
 }
 
@@ -456,44 +464,46 @@ static void parse_config_file(char *cfg_file)
 			// check for record calls argument
 			if (!strcasecmp(arg, "rc")) 
 			{
-				app_cfg.record_calls = atoi(val);
+				app_cfg.record_calls = (short)atoi(val);
 				continue;
 			}
             if (!strcasecmp(arg, "dtmf-encoding")) //0 = linear, 1 = MT8870 standart
             {
-                app_cfg.dtmf_encoding = atoi(val);
+                app_cfg.dtmf_encoding = (short)atoi(val);
                 continue;
             }
+#ifdef gpioenable
             if (!strcasecmp(arg, "gpio-en"))
             {
-                app_cfg.gpio_enable = atoi(val);
+                app_cfg.gpio_enable = (short)atoi(val);
                 continue;
             }
             if (!strcasecmp(arg, "gpio-0"))
             {
-                app_cfg.gpio_port[0] = atoi(val);
+                app_cfg.gpio_port[0] = (short)atoi(val);
                 continue;
             }
             if (!strcasecmp(arg, "gpio-1"))
             {
-                app_cfg.gpio_port[1] = atoi(val);
+                app_cfg.gpio_port[1] = (short)atoi(val);
                 continue;
             }
             if (!strcasecmp(arg, "gpio-2"))
             {
-                app_cfg.gpio_port[2] = atoi(val);
+                app_cfg.gpio_port[2] = (short)atoi(val);
                 continue;
             }
             if (!strcasecmp(arg, "gpio-3"))
             {
-                app_cfg.gpio_port[3] = atoi(val);
+                app_cfg.gpio_port[3] = (short)atoi(val);
                 continue;
             }
             if (!strcasecmp(arg, "gpio-interrupt"))
             {
-                app_cfg.interrupt_send_port = atoi(val);
+                app_cfg.interrupt_send_port = (short)atoi(val);
                 continue;
             }
+#endif
 			// check for announcement file argument
 			if (!strcasecmp(arg, "af"))
 			{
@@ -523,7 +533,7 @@ static void parse_config_file(char *cfg_file)
 			// check for silent mode argument
 			if (!strcasecmp(arg, "s")) 
 			{
-				app_cfg.silent_mode = atoi(val);
+				app_cfg.silent_mode = (short)atoi(val);
 				continue;
 			}
 			
@@ -540,8 +550,8 @@ static void parse_config_file(char *cfg_file)
 			if(sscanf(arg, "dtmf.%2[^^.].%s", dtmf_id, dtmf_setting) == 2) //corrected
 			{
 				// parse dtmf id (key)
-				int d_id;
-				d_id = atoi(dtmf_id);	
+				short d_id;
+				d_id = (short)atoi(dtmf_id);
 
 				// check if actual dtmf id blasts maxium settings 
 				if (d_id >= MAX_DTMF_SETTINGS) continue;
@@ -552,7 +562,7 @@ static void parse_config_file(char *cfg_file)
 				// check for dtmf active setting
 				if (!strcasecmp(dtmf_setting, "active"))
 				{
-					d_cfg->active = atoi(val);
+					d_cfg->active = (short)atoi(val);
 					continue;
 				}
 				
@@ -1191,12 +1201,13 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
             }
         }
     }
+#ifdef gpioenable
     dtmf_value=dtmf_key;
     if (app_cfg.gpio_enable) {
         dtmf_trigger = 1;
         piThreadCreate(raspi_output);
     }
-	
+#endif
 	char info[100];
 	sprintf(info, "DTMF command detected: %i\n", dtmf_key);
 	log_message(info);

@@ -11,7 +11,7 @@ Copyright (C) 2012 by _Andre Wussow_, desk@binerry.de
 
 major changes 2017 by _Fabian Huslik, github.com/fabianhu_
 
-more changes 2018 by  _Kaito Cross_
+more changes 2018 by  _Kaito Cross, github.com/KaitoCross_
 
 For more informations please visit http://binerry.de/post/29180946733/raspberry-pi-caller-and-answering-machine.
 
@@ -19,27 +19,33 @@ Installation on Raspberry Pi 2/3 with Raspian
 =============================================
 1. Build and install PjSIP as explained below
 2. install eSpeak `sudo apt-get install espeak espeak-data`
-3. install wiringPi as outlined on http://wiringpi.com/download-and-install/
-4. after executing ./build as described, run sudo make install
-5. Copy Project folder to Raspberry Pi and hit`make` in this folder
-6. configure `sipserv.cfg` to your needs (see example configuration)
-7. test drive using`sudo ./sipserv --config-file sipserv.cfg`
-8. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
-9. stop the SIP service using `sipserv-ctrl.sh stop`
-10. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
+
+3. If output of DTMF digits through GPIO in sipserv is needed: (if not, skip to step 5)
+4. install wiringPi as outlined on http://wiringpi.com/download-and-install/
+5. after executing `./build` as described in link, run sudo make install for wiringPi
+
+6. Download this folder to Raspberry Pi
+7. If output of DTMF digits in sipserv through GPIO is needed: execute `make sipserv-gpio` && `make sipcall` in SIP-Pi folder in Terminal
+8. If mentioned output is not needed, just execute `make all` in SIP-Pi folder in Terminal
+
+9. configure `sipserv.cfg` to your needs (see example configuration)
+10. test drive using`sudo ./sipserv --config-file sipserv.cfg`
+11. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
+12. stop the SIP service using `sipserv-ctrl.sh stop`
+13. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
 
 sipserv
 =======
 Pickup a call, have a welcome message played or read.
 Do some actions by pressing (DTMF) keys on your phone.
-Get 4-bit DTMF key value through GPIO1, GPIO4, GPIO5, GPIO6 (1 is least significant bit, 6 most significant bit)
+Get 4-bit DTMF key value through GPIO if wished.
 This service uses a generic approach. All actions are configurable via config file.
 One special usage is the special ability to record the caller while playing the intro.
 Please contact your lawyer, if this is legal in your country.
 With the sample configuration you can have a blacklist and only the special (=blacklisted) calls answered.
 
 
-##Usage:   (as root)
+##Usage:   (if GPIO output needed, has to run as root)
   `sipserv [options]`   
 
 ##Commandline:   
@@ -78,7 +84,7 @@ With the sample configuration you can have a blacklist and only the special (=bl
 * gpio-en=int _enable output of DTMF digits on Raspberry Pi wiringPi GPIO_
 
 ###options for DTMF digit output on Raspberry Pi GPIO
-The GPIO output function is based on wiringPi and uses the wiringPi numering scheme.
+The GPIO output function is based on wiringPi and uses the wiringPi numbering scheme.
 It outputs the digits as 4-bit binary number.
 When GPIO output has been enabled, you have to define all 4 output ports and the interrupt port.
 To define them, put this into the config file:
@@ -87,15 +93,15 @@ To define them, put this into the config file:
 * gpio-2=int _Port number goes here instead of int_
 * gpio-3=int _Port number goes here instead of int_
 * gpio-interrupt=int  _Port number goes here instead of int_
-The interrupt port is often needed by the microcontroller that reads those digits.
-Connect it to the interrupt port of your other microcontroller and configure that controller as needed to respond to the interrupt.
+The interrupt port is often needed by the microprocesser that reads those digits.
+Connect it to the interrupt port of your other microprocesser and configure that controller as needed to respond to the interrupt.
 
 ##a sample configuration can be found in sipserv-sample.cfg
   
 ###sipserv can be controlled with
 ```bash
-./sipserv-ctrl.sh start and 
-./sipserv-ctrl.sh stop
+sudo ./sipserv-ctrl.sh start and
+sudo ./sipserv-ctrl.sh stop
 ```
 
 Changelog since fabianhu's version:

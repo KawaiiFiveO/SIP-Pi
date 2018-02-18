@@ -7,9 +7,9 @@
 #define MAX_DTMF_SETTINGS 16
 
 struct dtmf_config {
-    int id;
-    int active;
-    int processing_active;
+    short id;
+    short active;
+    short processing_active;
     char *description;
     char *audio_response_file;
     char *tts_intro;
@@ -19,14 +19,14 @@ struct dtmf_config {
 
 // struct for app configuration settings
 struct app_config {
-    int ipv6;
+    short ipv6;
     char *sip_domain;
-    int port;
+    unsigned int port;
     char *sip_user;
     char *sip_password;
     char *language;
-    int record_calls;
-    int silent_mode;
+    short record_calls;
+    short silent_mode;
     char *tts;
     char *announcement_file;
     char *CallCmd;

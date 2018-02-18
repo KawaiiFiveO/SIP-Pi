@@ -9,8 +9,8 @@ int initPi(void);
 void nibbleOutputGPIO(short, short, short, short, short);
 void togglePin(short);
 //AMK CHANGE THIS GITHUB
-int dtmf_trigger = 0;
-int dtmf_value = 0;
+short dtmf_trigger = 0;
+short dtmf_value = 0;
 
 
 PI_THREAD (raspi_output)
