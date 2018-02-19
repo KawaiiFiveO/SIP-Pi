@@ -943,16 +943,21 @@ char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, i
 
 char* LogEntryFromCallInfo(pjsua_call_info ci) {
     // log call info
-    int length = 0;
+    int lengthNr = 0;
+	int lenSipAcc = 0;
     // get elements
 	char timestamp[19];
 	getTimestamp(timestamp);
-    char *tmp = extractdelimited_new(ci.remote_info.ptr, '\"', '\"',&length);
-    char* result = calloc(length+1+20+1, sizeof(char));
+	char* sipNr = extractdelimited_new(ci.remote_info.ptr,':','@',&lengthNr);
+    char *sipAcc = extractdelimited_new(ci.remote_info.ptr, '\"', '\"',&lenSipAcc);
+    char* result = calloc(lenSipAcc+1+lengthNr+1+20+1, sizeof(char));
     strcpy(result,timestamp);
     strcat(result," ");
-	strcat(result,tmp);
-    free(tmp);
+	strcat(result,sipNr);
+	strcat(result," ");
+	strcat(result,sipAcc);
+    free(sipAcc);
+	free(sipNr);
     return result;
 }
 
