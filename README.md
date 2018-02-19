@@ -66,7 +66,7 @@ With the sample configuration you can have a blacklist and only the special (=bl
 * tts=string  _String to be read as a intro message_
 
 ###_determine DTMF Key digit encoding_
-** dtmf-encoding=int _Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)_
+* dtmf-encoding=int _Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)_
 
 ###_and at least one dtmf key configuration (X = dtmf-key index):_
 * dtmf.X.active=int           _Set dtmf-setting active (0/1)._   
