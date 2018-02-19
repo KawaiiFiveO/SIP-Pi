@@ -204,7 +204,7 @@ int main(int argc, char *argv[])
 
     if (app_cfg.gpio_enable) {
         int success = initPi();
-        log_message("Initialized Pi Output successfully");
+        log_message("Initialized Pi Output successfully\n");
         if (success != 0) {
             log_message("Error while initializing Pi Output");
             app_exit();
