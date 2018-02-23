@@ -18,7 +18,7 @@ For more informations please visit http://binerry.de/post/29180946733/raspberry-
 1. Build and install PjSIP as explained below
 2. install eSpeak `sudo apt-get install espeak espeak-data`
 
-3. If output of DTMF digits through GPIO in sipserv is needed: (if not, skip to step 5)
+3. If output of DTMF digits through GPIO in sipserv is needed: (if not, skip to step 6)
 4. install wiringPi as outlined on http://wiringpi.com/download-and-install/
 5. after executing `./build` as described in link, run sudo make install for wiringPi
 
@@ -121,6 +121,8 @@ cd pjproject-2.7.1/
 nano pjlib/include/pj/config_site.h (add next line into file:)
 #define PJ_HAS_IPV6 1
 
+navigate back to pjproject-2.7.1 folder
+
 make dep 
 make
 sudo make install
@@ -141,6 +143,8 @@ export LDFLAGS="-L/opt/raspi_tools/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueab
 
 Add into pjlib/include/pj/config_site.h:
 #define PJ_HAS_IPV6 1
+
+navigate back to pjproject-2.7.1 folder
 
 make dep
 
