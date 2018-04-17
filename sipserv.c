@@ -175,6 +175,7 @@ int main(int argc, char *argv[])
     socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
     printf("Starting connection..\n");
     socket_info.disconnected = 1;
+    socket_info.keepaliveSuccess=0;
     if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
     {
         log_message("ERROR CREATING TCP READER THREAD");
@@ -360,16 +361,19 @@ int main(int argc, char *argv[])
             printf("Starting connection...\n");
             if (connect(socket_info.socketfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
                 printf("ERROR connecting");
-                socket_info.disconnected = 1;
+                //socket_info.disconnected = 1;
             }
             else
             {
+                pthread_mutex_lock(&disconnMutex);
                 socket_info.disconnected=0;
+                socket_info.keepaliveSuccess=1;
+                pthread_mutex_unlock(&disconnMutex);
                 printf("Connection to dtmf code relay established!\n");
             }
         }
 #endif
-        sleep(10); // avoid locking up the system
+        sleep(6); // avoid locking up the system
     }
 
     // exit app
