@@ -377,7 +377,7 @@ int main(int argc, char *argv[])
         {
             struct addrinfo *temp = result;
             log_message("Starting connection...\n");
-            for (rp = result; rp != NULL; rp = rp->ai_next) {
+            for (rp = result; rp != NULL && socket_info.disconnected==1; rp = rp->ai_next) {
                 socket_info.socketfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
                 if (socket_info.socketfd == -1)
                     {
@@ -394,7 +394,6 @@ int main(int argc, char *argv[])
                     socket_info.keepaliveSuccess=1;
                     pthread_mutex_unlock(&disconnMutex);
                     log_message("Connection to dtmf code relay established!\n");
-                    rp=NULL;
                 }
             }
             result = temp;
