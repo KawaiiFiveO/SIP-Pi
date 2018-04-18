@@ -137,6 +137,7 @@ int main(int argc, char *argv[])
     signal(SIGINT, signal_handler);
     signal(SIGKILL, signal_handler);
 #ifdef tcpmodule
+    signal(SIGPIPE,disconn_signal);
     overwriteDTMFdigitCache=1;
     if (pthread_mutex_init(&digitMutex, NULL) != 0) {
         log_message("\n digit mutex init failed\n");
@@ -373,7 +374,7 @@ int main(int argc, char *argv[])
     // app loop
     for (;;) {
 #ifdef tcpmodule
-        while(socket_info.disconnected==1)
+        while(socket_info.disconnected==1 && socket_info.endMyLife=0)
         {
             struct addrinfo *temp = result;
             log_message("Starting connection...\n");
@@ -1470,7 +1471,17 @@ static void signal_handler(int signal)
     // exit app
     app_exit();
 }
-
+#ifdef tcpmodule
+static void disconn_signal(int signal)
+{
+    //mark as disconnected
+        pthread_mutex_lock(&disconnMutex);
+        socket_info.disconnected=1;
+        pthread_mutex_unlock(&disconnMutex);
+        shutdown(socket_info.socketfd,SHUT_RDWR);
+        close(socket_info.socketfd);
+}
+#endif
 // clean application exit
 static void app_exit()
 {
@@ -1497,6 +1508,7 @@ static void app_exit()
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
+        close(socket_info.socketfd);
         pthread_join(tcpthread,NULL);//
         pthread_join(tcpwritethread,NULL);//
         log_message("Final Mutex destruction ... \n");
@@ -1540,6 +1552,7 @@ static void error_exit(const char *title, pj_status_t status)
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
+        close(socket_info.socketfd);
         pthread_join(tcpthread,NULL);//
         pthread_join(tcpwritethread,NULL);//
         log_message("Final Mutex destruction ... \n");
