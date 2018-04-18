@@ -38,6 +38,7 @@ struct app_config {
     short gpio_port[4];
     short interrupt_send_port;
     short dtmf_encoding;
+    char* dtmf_forward_hostname;
 };
 
 struct app_config app_cfg;
