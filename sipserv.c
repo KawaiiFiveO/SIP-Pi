@@ -168,7 +168,7 @@ int main(int argc, char *argv[])
     hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
     hints.ai_socktype = SOCK_STREAM; /* TCP socket */
     hints.ai_flags = 0;
-    hints.ai_protocol = 0;          /* Any protocol */
+    hints.ai_protocol = IPPROTO_TCP;          /* Any protocol */
      //targetserver == NULL;
 #endif
     // init dtmf settings (dtmf zero is not reserved for anything!)
@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 #ifdef tcpmodule
      if (strlen(app_cfg.dtmf_forward_hostname)>4)
          {
-             if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result)!= 0)
+             if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result) == 0)
                  {
                     serv_addr.sin_family = AF_INET;
                     serv_addr.sin_port = htons(4242);
@@ -297,6 +297,7 @@ int main(int argc, char *argv[])
             else
                 {
                 log_message("DNS FAILED\n");
+                app_exit();
                 }
         }
     else
