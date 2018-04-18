@@ -353,7 +353,7 @@ int main(int argc, char *argv[]) {
     // app loop
     do {
 #ifdef tcpmodule
-        while(socket_info.disconnected==1)
+        while(socket_info.disconnected==1)//LOL
         {
             struct addrinfo *temp = result;
             log_message("Starting connection...\n");
