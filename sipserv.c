@@ -255,7 +255,7 @@ int main(int argc, char *argv[])
 #ifdef tcpmodule
      if (strlen(app_cfg.dtmf_forward_hostname)>4)
          {
-             if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result))
+             if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result)!= 0)
                  {
                     serv_addr.sin_family = AF_INET;
                     serv_addr.sin_port = htons(4242);
@@ -296,7 +296,7 @@ int main(int argc, char *argv[])
                 }
             else
                 {
-                log_message("TCP WRITE ENABLED\n");
+                log_message("DNS FAILED\n");
                 }
         }
     else
