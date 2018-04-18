@@ -1492,7 +1492,7 @@ static void app_exit()
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        //close(socket_info.socketfd);
+        close(socket_info.socketfd);
         log_message("Join Thread 1\n");
         pthread_join(tcpthread,NULL);//
         log_message("Join Thread 2\n");
@@ -1538,7 +1538,7 @@ static void error_exit(const char *title, pj_status_t status)
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        //close(socket_info.socketfd);
+        close(socket_info.socketfd);
         pthread_join(tcpthread,NULL);//
         pthread_join(tcpwritethread,NULL);//
         log_message("Final Mutex destruction ... \n");
