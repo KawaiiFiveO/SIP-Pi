@@ -269,7 +269,7 @@ int main(int argc, char *argv[])
                     }
                     if(socket_info.socketfd == -1)
                         {
-                            log_message("CONNECTION FAILED!");
+                            log_message("SOCKET FAILED!");
                             app_exit();
                         }
                         else
@@ -388,7 +388,7 @@ int main(int argc, char *argv[])
         while(socket_info.disconnected==1)
         {
             printf("Starting connection...\n");
-            if (connect(socket_info.socketfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
+            if (connect(socket_info.socketfd, rp->ai_addr, rp->ai_addrlen) < 0) {
                 printf("ERROR connecting");
                 //socket_info.disconnected = 1;
             }
@@ -1506,6 +1506,7 @@ static void app_exit()
         pthread_mutex_destroy(&sendflagMutex);
         pthread_mutex_destroy(&digitMutex);
         pthread_mutex_destroy(&disconnMutex);
+        freeaddrinfo(result);
 #endif
         log_message("Done closing.\n");
 
@@ -1548,6 +1549,7 @@ static void error_exit(const char *title, pj_status_t status)
         pthread_mutex_destroy(&sendflagMutex);
         pthread_mutex_destroy(&digitMutex);
         pthread_mutex_destroy(&disconnMutex);
+        freeaddrinfo(result);
 #endif
         pjsua_destroy();
 
