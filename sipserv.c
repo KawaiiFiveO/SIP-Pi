@@ -383,9 +383,9 @@ int main(int argc, char *argv[])
                     {
                     continue;
                     }
-                if (connect(socket_info.socketfd, rp->ai_addr, rp->ai_addrlen) < 0) {
+                if (connect(socket_info.socketfd, rp->ai_addr, rp->ai_addrlen) == -1) {
                     log_message("ERROR connecting\n");
-                    break;
+                    continue;
                 }
                 else
                 {
