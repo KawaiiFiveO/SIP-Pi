@@ -375,29 +375,30 @@ int main(int argc, char *argv[])
 #ifdef tcpmodule
         while(socket_info.disconnected==1)
         {
+            struct addrinfo *temp = result;
             printf("Starting connection...\n");
             for (rp = result; rp != NULL; rp = rp->ai_next) {
-            socket_info.socketfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-            if (socket_info.socketfd == -1)
-                {
-                continue;
+                socket_info.socketfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+                if (socket_info.socketfd == -1)
+                    {
+                    continue;
+                    }
+                if (connect(socket_info.socketfd, rp->ai_addr, rp->ai_addrlen) < 0) {
+                    printf("ERROR connecting\n");
+                    break;
                 }
-            if (connect(socket_info.socketfd, rp->ai_addr, rp->ai_addrlen) < 0) {
-                printf("ERROR connecting");
-                break;
+                else
+                {
+                    pthread_mutex_lock(&disconnMutex);
+                    socket_info.disconnected=0;
+                    socket_info.keepaliveSuccess=1;
+                    pthread_mutex_unlock(&disconnMutex);
+                    printf("Connection to dtmf code relay established!\n");
+                    break;
+                }
             }
-            else
-            {
-                pthread_mutex_lock(&disconnMutex);
-                socket_info.disconnected=0;
-                socket_info.keepaliveSuccess=1;
-                pthread_mutex_unlock(&disconnMutex);
-                printf("Connection to dtmf code relay established!\n");
-                break;
-            }
-
-            }
-
+            result = temp;
+            sleep(1);
         }
 #endif
         sleep(6); // avoid locking up the system
