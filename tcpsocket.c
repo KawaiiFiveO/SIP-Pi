@@ -19,11 +19,13 @@
 #include<errno.h>
 
 struct sockaddr_in serv_addr;
-struct hostent *targetserver;
+//struct hostent *targetserver;
 short sendNewValue=0;
 int displayedDigits[4];
 short overwriteDTMFdigitCache =1;
 pthread_mutex_t digitMutex, sendflagMutex, lifeflagMutex, disconnMutex, overwriteCacheMutex;
+struct addrinfo hints;
+struct addrinfo *result, *rp;
 struct socketlife
 {
     int socketfd;

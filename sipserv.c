@@ -164,7 +164,12 @@ int main(int argc, char *argv[])
     }
     log_message("Mutex init\n");
     bzero((char *) &serv_addr, sizeof(serv_addr));
-     targetserver == NULL
+    memset(&hints, 0, sizeof(struct addrinfo));
+    hints.ai_family = AF_UNSPEC;    /* Allow IPv4 or IPv6 */
+    hints.ai_socktype = SOCK_STREAM; /* TCP socket */
+    hints.ai_flags = 0;
+    hints.ai_protocol = 0;          /* Any protocol */
+     //targetserver == NULL;
 #endif
     // init dtmf settings (dtmf zero is not reserved for anything!)
     short i;
@@ -248,30 +253,46 @@ int main(int argc, char *argv[])
     }
 #endif
 #ifdef tcpmodule
-     if (targetserver != NULL)
+     if (strlen(app_cfg.dtmf_forward_hostname)>4)
          {
-            serv_addr.sin_family = AF_INET;
-            serv_addr.sin_port = htons(4242);
-            log_message("serverdata init\n");
-            bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
-            printf("Starting connection\n");
-            socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
-            printf("Starting connection..\n");
-            socket_info.disconnected = 1;
-            socket_info.keepaliveSuccess=0;
-            if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
-                {
-                log_message("ERROR CREATING TCP READER THREAD");
-                app_exit();
-                }
-            else
-                {
-                log_message("TCP READ ENABLED\n");
-                }
-            if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
-                {
-                log_message("ERROR CREATING TCP WRITER THREAD");
-                app_exit();
+             if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result))
+                 {
+                    serv_addr.sin_family = AF_INET;
+                    serv_addr.sin_port = htons(4242);
+                    log_message("serverdata init\n");
+                    //bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
+                    printf("Starting connection\n");
+                    for (rp = result; rp != NULL; rp = rp->ai_next) {
+                        socket_info.socketfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+                        if (socket_info.socketfd == -1)
+                           continue;
+                    }
+                    if(socket_info.socketfd == -1)
+                        {
+                            log_message("CONNECTION FAILED!");
+                            app_exit();
+                        }
+                        else
+                            {
+                        //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
+                        printf("Starting connection..\n");
+                        socket_info.disconnected = 1;
+                        socket_info.keepaliveSuccess=0;
+                        if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
+                            {
+                            log_message("ERROR CREATING TCP READER THREAD");
+                            app_exit();
+                            }
+                        else
+                            {
+                            log_message("TCP READ ENABLED\n");
+                            }
+                        if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
+                            {
+                            log_message("ERROR CREATING TCP WRITER THREAD");
+                            app_exit();
+                            }
+                        }
                 }
             else
                 {
@@ -280,7 +301,7 @@ int main(int argc, char *argv[])
         }
     else
         {
-            log_message("DOMAIN MISSING OR UNABLE TO RESOLVE");
+            log_message("DOMAIN MISSING");
             exit(1);
         }
 #endif
@@ -598,7 +619,7 @@ static void parse_config_file(char *cfg_file)
 #ifdef tcpmodule
             if (!strcasecmp(arg, "dtmf-value-forward-srv"))
             {
-                targetserver = gethostbyname(val);
+                app_cfg.dtmf_forward_hostname=trim_string(arg_val);
                 continue;
             }
 #endif
