@@ -138,6 +138,12 @@ void tcpwriter (struct socketlife *param)
             } else {
                 pthread_mutex_unlock(&sendflagMutex);  //mutex unlock
             }
+            pthread_mutex_lock(&lifeflagMutex);
+            endMyLifeflag = param->endMyLife;
+            pthread_mutex_unlock(&lifeflagMutex);
+            pthread_mutex_lock(&disconnMutex);
+            param->disconnected=1;
+            pthread_mutex_unlock(&disconnMutex);
         }
         pthread_mutex_lock(&lifeflagMutex);
         endMyLifeflag = param->endMyLife;
@@ -164,52 +170,8 @@ void tcplistener(struct socketlife *param)
         disconn = param->disconnected;
         pthread_mutex_unlock(&disconnMutex);
         while (disconn != 1 && lifeflag != 1) {
-/*            countdown_end = clock();
-            double elapsedTimeCoutdown = (double)(countdown_end - countdown_start) / CLOCKS_PER_SEC;
-            if ((elapsedTimeCoutdown > (double)numbers) && numbers != 0) {
-                //mutex lock
-                pthread_mutex_lock(&sendflagMutex);
-                sendNewValue = 1;
-                //mutex unlock
-                pthread_mutex_unlock(&sendflagMutex);
-                //mutex lock
-                pthread_mutex_lock(&digitMutex);
-                bzero(displayedDigits, sizeof(displayedDigits));
-                //mutex unlock
-                pthread_mutex_unlock(&digitMutex);
-            }
-            timeout_end=clock();
-            double elapsedTimeoutCheckTime = (double)(timeout_end-timeout_start)/CLOCKS_PER_SEC;
-            if (elapsedTimeCoutdown >= 5)
-            {
-                if (send(param->socketfd, "ELPSY", strlen("ELPSY"),0)<=-1)
-                {
-                    printf("ERROR DISCONNECTED!!");
-                        shutdown(param->socketfd, SHUT_RDWR);
-                        disconn = 1;
-                }
-                timeout_start=clock();
-            }*/
             pthread_mutex_lock(&sendflagMutex); //mutex lock
-            if (sendNewValue == 0) {/*
-                pthread_mutex_unlock(&sendflagMutex);  //mutex unlock
-                countdown_start = clock();
-                pthread_mutex_lock(&digitMutex);
-                numbers = makeDigitsArrToNumber(displayedDigits, 4);
-                pthread_mutex_unlock(&digitMutex);
-                sprintf(msgbuf, "RCVTO %04d", numbers);
-                suc = (int) send(param->socketfd, msgbuf, strlen(msgbuf), 0);
-                if (suc < 0) {
-                    oldnumbers = numbers;
-                }
-                send_acked = 0;
-                pthread_mutex_lock(&sendflagMutex);
-                sendNewValue = 0;
-                pthread_mutex_unlock(&sendflagMutex);
-            }
-
-            else //receiving!
-            {*/
+            if (sendNewValue == 0) {
                 pthread_mutex_unlock(&sendflagMutex); //mutex unlock
                 int valread = (int) read(param->socketfd, msgbuf, 10);
                 if (strncmp(msgbuf, "RCVOK", 5) == 0) {
