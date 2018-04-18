@@ -53,7 +53,7 @@ int makeDigitsArrToNumber(int* numbers, int amount)
 void tcpwriter (struct socketlife *param)
 {
     int suc=0;
-    short lifeflag = 0;
+    short endMyLifeflag = 0;
     int numbers=0;
     char msgbuf[10] ="";
     int send_acked = 1;
@@ -66,13 +66,13 @@ void tcpwriter (struct socketlife *param)
     countdown_start = clock();
     short disconn = 0;
     pthread_mutex_lock(&lifeflagMutex);
-    lifeflag = param->endMyLife;
+    endMyLifeflag = param->endMyLife;
     pthread_mutex_unlock(&lifeflagMutex);
     do {
         pthread_mutex_lock(&disconnMutex);
         disconn = param->disconnected;
         pthread_mutex_unlock(&disconnMutex);
-        while (lifeflag != 1 && disconn !=1) {
+        while (endMyLifeflag == 0 && disconn ==0) {
             //Count seconds of microwave down, reset time offset on server if countdown reaches zero
             countdown_end = clock();
             //If timer set my microwave ended, send zeroes
@@ -140,18 +140,13 @@ void tcpwriter (struct socketlife *param)
             }
         }
         pthread_mutex_lock(&lifeflagMutex);
-        lifeflag = param->endMyLife;
+        endMyLifeflag = param->endMyLife;
         pthread_mutex_unlock(&lifeflagMutex);
-    }while (lifeflag!=1);
+    }while (endMyLifeflag==0);
 }
 
 void tcplistener(struct socketlife *param)
 {
-    /*clock_t countdown_start;
-    clock_t countdown_end;
-    clock_t timeout_start = clock();
-    clock_t timeout_end;
-*/
     short lifeflag = 0;
     char msgbuf[10] ="";
     int send_acked = 1;
@@ -160,23 +155,7 @@ void tcplistener(struct socketlife *param)
     int numbers=0;
     //int oldnumbers = 0;
     short disconn = 0;
-    //countdown_start = clock();
-    /*printf("Starting connection\n");
-    param->socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    printf("Starting connection..\n");*/
-    //pthread_mutex_lock(&lifeflagMutex);
     do {
-        //pthread_mutex_unlock(&lifeflagMutex);
-/*        printf("Starting connection...\n");
-        if (connect(param->socketfd, (struct sockaddr*)&serv_addr, sizeof(serv_addr)) < 0) {
-            printf("ERROR connecting");
-            disconn = 1;
-        }
-        else
-        {
-            disconn=0;
-            printf("Successfully connected to distserv!\n");
-        }*/
         //mutex lock
         pthread_mutex_lock(&lifeflagMutex);
         lifeflag = param->endMyLife;
