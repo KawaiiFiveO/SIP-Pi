@@ -164,8 +164,7 @@ int main(int argc, char *argv[])
     }
     log_message("Mutex init\n");
     bzero((char *) &serv_addr, sizeof(serv_addr));
-     *targetserver == NULL
-*/
+     targetserver == NULL
 #endif
     // init dtmf settings (dtmf zero is not reserved for anything!)
     short i;
@@ -599,7 +598,7 @@ static void parse_config_file(char *cfg_file)
 #ifdef tcpmodule
             if (!strcasecmp(arg, "dtmf-value-forward-srv"))
             {
-                *targetserver = gethostbyname(val);
+                targetserver = gethostbyname(val);
                 continue;
             }
 #endif
