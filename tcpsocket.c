@@ -146,7 +146,7 @@ void tcpwriter (struct socketlife *param)
             pthread_mutex_unlock(&disconnMutex);
         }
         pthread_mutex_lock(&lifeflagMutex);
-        disconn = param->disconnected;
+        endMyLifeflag = param->endMyLife;
         pthread_mutex_unlock(&lifeflagMutex);
     }while (endMyLifeflag==0);
 }
