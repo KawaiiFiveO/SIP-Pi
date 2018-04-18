@@ -261,19 +261,7 @@ int main(int argc, char *argv[])
                     serv_addr.sin_port = htons(4242);
                     log_message("serverdata init\n");
                     //bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
-                    printf("Starting connection\n");
-                    for (rp = result; rp != NULL; rp = rp->ai_next) {
-                        socket_info.socketfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
-                        if (socket_info.socketfd == -1)
-                           continue;
-                    }
-                    if(socket_info.socketfd == -1)
-                        {
-                            log_message("SOCKET FAILED!");
-                            app_exit();
-                        }
-                        else
-                            {
+                    //printf("Starting connection\n");
                         //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
                         printf("Starting connection..\n");
                         socket_info.disconnected = 1;
@@ -292,7 +280,6 @@ int main(int argc, char *argv[])
                             log_message("ERROR CREATING TCP WRITER THREAD");
                             app_exit();
                             }
-                        }
                 }
             else
                 {
@@ -389,9 +376,15 @@ int main(int argc, char *argv[])
         while(socket_info.disconnected==1)
         {
             printf("Starting connection...\n");
+            for (rp = result; rp != NULL; rp = rp->ai_next) {
+            socket_info.socketfd = socket(rp->ai_family, rp->ai_socktype, rp->ai_protocol);
+            if (socket_info.socketfd == -1)
+                {
+                continue;
+                }
             if (connect(socket_info.socketfd, rp->ai_addr, rp->ai_addrlen) < 0) {
                 printf("ERROR connecting");
-                //socket_info.disconnected = 1;
+                break;
             }
             else
             {
@@ -400,7 +393,11 @@ int main(int argc, char *argv[])
                 socket_info.keepaliveSuccess=1;
                 pthread_mutex_unlock(&disconnMutex);
                 printf("Connection to dtmf code relay established!\n");
+                break;
             }
+
+            }
+
         }
 #endif
         sleep(6); // avoid locking up the system
