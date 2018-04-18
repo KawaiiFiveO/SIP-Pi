@@ -111,6 +111,9 @@ static void on_call_media_state(pjsua_call_id);
 static void on_call_state(pjsua_call_id, pjsip_event *);
 static void on_dtmf_digit(pjsua_call_id, int);
 static void signal_handler(int);
+#ifdef tcpmodule
+static void disconn_signal(int);
+#endif
 static char *trim_string(char *);
 
 // header of app-control-methods
@@ -118,15 +121,14 @@ static void app_exit();
 static void error_exit(const char *, pj_status_t);
 
 // main application
-int main(int argc, char *argv[])
-{
+int main(int argc, char *argv[]) {
     // first set some default values
     app_cfg.record_calls = 0;
     app_cfg.silent_mode = 0;
-    app_cfg.ipv6=0;
-    app_cfg.port=5060;
-    app_cfg.gpio_enable=0;
-    app_cfg.dtmf_encoding=0;
+    app_cfg.ipv6 = 0;
+    app_cfg.port = 5060;
+    app_cfg.gpio_enable = 0;
+    app_cfg.dtmf_encoding = 0;
 
 
     // print infos
@@ -174,8 +176,7 @@ int main(int argc, char *argv[])
 #endif
     // init dtmf settings (dtmf zero is not reserved for anything!)
     short i;
-    for (i = 0; i < MAX_DTMF_SETTINGS; i++)
-    {
+    for (i = 0; i < MAX_DTMF_SETTINGS; i++) {
         struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[i];
         d_cfg->id = i;
         d_cfg->active = 0;
@@ -183,25 +184,20 @@ int main(int argc, char *argv[])
     }
 
     // parse arguments
-    if (argc > 1)
-    {
+    if (argc > 1) {
         int arg;
-        for( arg = 1; arg < argc; arg+=2 )
-        {
+        for (arg = 1; arg < argc; arg += 2) {
             // check if usage info needs to be displayed
-            if (!strcasecmp(argv[arg], "--help") || !strcasecmp(argv[arg], "-help") || !strcasecmp(argv[arg], "-h"))
-            {
+            if (!strcasecmp(argv[arg], "--help") || !strcasecmp(argv[arg], "-help") || !strcasecmp(argv[arg], "-h")) {
                 // display usage info and exit app
                 usage(0);
                 exit(0);
             }
 
             // check for config file location
-            if (!strcasecmp(argv[arg], "--config-file"))
-            {
-                if (argc >= (arg+1))
-                {
-                    app_cfg.config_file = argv[arg+1];
+            if (!strcasecmp(argv[arg], "--config-file")) {
+                if (argc >= (arg + 1)) {
+                    app_cfg.config_file = argv[arg + 1];
                 }
                 continue;
             }
@@ -209,16 +205,14 @@ int main(int argc, char *argv[])
             // check for silent mode option
             char *s;
             try_get_argument(arg, "-s", &s, argc, argv);
-            if (!strcasecmp(s, "1"))
-            {
+            if (!strcasecmp(s, "1")) {
                 app_cfg.silent_mode = 1;
                 continue;
             }
         }
     }
 
-    if (!app_cfg.config_file)
-    {
+    if (!app_cfg.config_file) {
         // too few arguments specified - display usage info and exit app
         usage(1);
         exit(1);
@@ -228,8 +222,7 @@ int main(int argc, char *argv[])
     parse_config_file(app_cfg.config_file);
 
 
-    if (!app_cfg.sip_domain || !app_cfg.sip_user || !app_cfg.sip_password || !app_cfg.language)
-    {
+    if (!app_cfg.sip_domain || !app_cfg.sip_user || !app_cfg.sip_password || !app_cfg.language) {
         log_message("Not enough stuff in config file\nsee sipserv -h\n");
         // display usage info and exit app
         usage(2); // fixme does not show after file has been opened.
@@ -254,66 +247,59 @@ int main(int argc, char *argv[])
     }
 #endif
 #ifdef tcpmodule
-     if (strlen(app_cfg.dtmf_forward_hostname)>4)
-         {
-             if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result) == 0)
-                 {
-                    serv_addr.sin_family = AF_INET;
-                    serv_addr.sin_port = htons(4242);
-                    log_message("serverdata init\n");
-                    //bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
-                    //printf("Starting connection\n");
-                        //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
-                        printf("Starting connection..\n");
-                        socket_info.disconnected = 1;
-                        socket_info.keepaliveSuccess=0;
-                        if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
-                            {
-                            log_message("ERROR CREATING TCP READER THREAD");
-                            app_exit();
-                            }
-                        else
-                            {
-                            log_message("TCP READ ENABLED\n");
-                            }
-                        if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
-                            {
-                            log_message("ERROR CREATING TCP WRITER THREAD");
-                            app_exit();
-                            }
-                }
-            else
-                {
-                log_message("DNS FAILED\n");
-                app_exit();
-                }
-        }
-    else
+    if (strlen(app_cfg.dtmf_forward_hostname)>4)
         {
-            log_message("DOMAIN MISSING");
-            exit(1);
-        }
+            if (getaddrinfo(app_cfg.dtmf_forward_hostname, "4242", &hints, &result) == 0)
+                {
+                   serv_addr.sin_family = AF_INET;
+                   serv_addr.sin_port = htons(4242);
+                   log_message("serverdata init\n");
+                   //bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
+                   //printf("Starting connection\n");
+                       //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
+                       printf("Starting connection..\n");
+                       socket_info.disconnected = 1;
+                       socket_info.keepaliveSuccess=0;
+                       if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
+                           {
+                           log_message("ERROR CREATING TCP READER THREAD");
+                           app_exit();
+                           }
+                       else
+                           {
+                           log_message("TCP READ ENABLED\n");
+                           }
+                       if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
+                           {
+                           log_message("ERROR CREATING TCP WRITER THREAD");
+                           app_exit();
+                           }
+               }
+           else
+               {
+               log_message("DNS FAILED\n");
+               app_exit();
+               }
+       }
+   else
+       {
+           log_message("DOMAIN MISSING");
+           exit(1);
+       }
 #endif
-    if	(app_cfg.announcement_file)
-    {
+    if (app_cfg.announcement_file) {
         log_message("Announcement mode\n");
         errno = 0;
         FILE *file;
-        if ((file = fopen(app_cfg.announcement_file, "r")) == NULL)
-        {
-            if (errno == ENOENT)
-            {
+        if ((file = fopen(app_cfg.announcement_file, "r")) == NULL) {
+            if (errno == ENOENT) {
                 log_message("Announcement file doesn't exist");
-            }
-            else
-            {
+            } else {
                 // Check for other errors too, like EACCES and EISDIR
                 log_message("Announcement file: some other error occured");
             }
             exit(1);
-        }
-        else
-        {
+        } else {
             fclose(file);
         }
     }
@@ -325,12 +311,10 @@ int main(int argc, char *argv[])
     strcpy(tts_buffer, app_cfg.tts);
     strcat(tts_buffer, " ");
 
-    for (i = 0; i < MAX_DTMF_SETTINGS; i++)
-    {
+    for (i = 0; i < MAX_DTMF_SETTINGS; i++) {
         struct dtmf_config *d_cfg = &app_cfg.dtmf_cfg[i];
 
-        if (d_cfg->active == 1)
-        {
+        if (d_cfg->active == 1) {
             strcat(tts_buffer, d_cfg->tts_intro);
             strcat(tts_buffer, " ");
         }
@@ -345,19 +329,14 @@ int main(int argc, char *argv[])
     synth_status = synthesize_speech(tts_buffer, tts_file, app_cfg.language);
     if (synth_status != 0) error_exit("Error while creating phone text", synth_status);
     log_message("Done.\n");
-    if	(app_cfg.log_file)
-    {
+    if (app_cfg.log_file) {
         errno = 0;
         log_message("Setting up call log\n");
         call_log = fopen(app_cfg.log_file, "a");
-        if (call_log == NULL)
-        {
-            if (errno == ENOENT)
-            {
+        if (call_log == NULL) {
+            if (errno == ENOENT) {
                 log_message("error, call log failed");
-            }
-            else
-            {
+            } else {
                 // Check for other errors too, like EACCES and EISDIR
                 log_message("call log file: some other error occured");
             }
@@ -372,9 +351,9 @@ int main(int argc, char *argv[])
     register_sip();
 
     // app loop
-    for (;;) {
+    do {
 #ifdef tcpmodule
-        while(socket_info.disconnected==1 && socket_info.endMyLife=0)
+        while(socket_info.disconnected==1)
         {
             struct addrinfo *temp = result;
             log_message("Starting connection...\n");
@@ -402,7 +381,12 @@ int main(int argc, char *argv[])
         }
 #endif
         sleep(6); // avoid locking up the system
-    }
+#ifdef tcpmodule
+        } while (socket_info.endMyLife==0);
+#endif
+#ifndef tcpmodule
+    }while(1);
+#endif
 
     // exit app
     app_exit();
@@ -1475,11 +1459,11 @@ static void signal_handler(int signal)
 static void disconn_signal(int signal)
 {
     //mark as disconnected
-        pthread_mutex_lock(&disconnMutex);
+        //pthread_mutex_lock(&disconnMutex);
         socket_info.disconnected=1;
-        pthread_mutex_unlock(&disconnMutex);
+        //pthread_mutex_unlock(&disconnMutex);
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        close(socket_info.socketfd);
+        //close(socket_info.socketfd);
 }
 #endif
 // clean application exit
@@ -1508,8 +1492,10 @@ static void app_exit()
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        close(socket_info.socketfd);
+        //close(socket_info.socketfd);
+        log_message("Join Thread 1\n");
         pthread_join(tcpthread,NULL);//
+        log_message("Join Thread 2\n");
         pthread_join(tcpwritethread,NULL);//
         log_message("Final Mutex destruction ... \n");
         pthread_mutex_destroy(&lifeflagMutex);
@@ -1552,7 +1538,7 @@ static void error_exit(const char *title, pj_status_t status)
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        close(socket_info.socketfd);
+        //close(socket_info.socketfd);
         pthread_join(tcpthread,NULL);//
         pthread_join(tcpwritethread,NULL);//
         log_message("Final Mutex destruction ... \n");
