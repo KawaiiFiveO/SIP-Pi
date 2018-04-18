@@ -394,7 +394,7 @@ int main(int argc, char *argv[])
                     socket_info.keepaliveSuccess=1;
                     pthread_mutex_unlock(&disconnMutex);
                     log_message("Connection to dtmf code relay established!\n");
-                    break;
+                    rp=NULL;
                 }
             }
             result = temp;
