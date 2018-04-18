@@ -64,7 +64,7 @@ void tcpwriter (struct socketlife *param)
     clock_t timeout_start = clock();
     clock_t timeout_end;
     countdown_start = clock();
-    short disconn = 0;
+    short disconn = 1;
     pthread_mutex_lock(&lifeflagMutex);
     endMyLifeflag = param->endMyLife;
     pthread_mutex_unlock(&lifeflagMutex);
@@ -72,7 +72,7 @@ void tcpwriter (struct socketlife *param)
         pthread_mutex_lock(&disconnMutex);
         disconn = param->disconnected;
         pthread_mutex_unlock(&disconnMutex);
-        while (endMyLifeflag == 0 && disconn ==0) {
+        while (disconn ==0) {
             //Count seconds of microwave down, reset time offset on server if countdown reaches zero
             countdown_end = clock();
             //If timer set my microwave ended, send zeroes
@@ -129,6 +129,7 @@ void tcpwriter (struct socketlife *param)
                 sprintf(msgbuf, "RCVTO %04d", numbers);
                 suc = (int) send(param->socketfd, msgbuf, strlen(msgbuf), 0);
                 if (suc < 0) {
+                    printf("ERROR SENDING NUMBERS");
                     oldnumbers = numbers;
                 }
                 //send_acked = 0;
@@ -138,9 +139,6 @@ void tcpwriter (struct socketlife *param)
             } else {
                 pthread_mutex_unlock(&sendflagMutex);  //mutex unlock
             }
-            pthread_mutex_lock(&lifeflagMutex);
-            endMyLifeflag = param->endMyLife;
-            pthread_mutex_unlock(&lifeflagMutex);
             pthread_mutex_lock(&disconnMutex);
             disconn = param->disconnected;
             pthread_mutex_unlock(&disconnMutex);
@@ -160,16 +158,13 @@ void tcplistener(struct socketlife *param)
     int suc=0;
     int numbers=0;
     //int oldnumbers = 0;
-    short disconn = 0;
+    short disconn = 1;
     do {
         //mutex lock
-        pthread_mutex_lock(&lifeflagMutex);
-        endMyLifeflag = param->endMyLife;
-        pthread_mutex_unlock(&lifeflagMutex);
         pthread_mutex_lock(&disconnMutex);
         disconn = param->disconnected;
         pthread_mutex_unlock(&disconnMutex);
-        while (disconn == 0 && endMyLifeflag == 0) {
+        while (disconn == 0) {
             pthread_mutex_lock(&sendflagMutex); //mutex lock
             if (sendNewValue == 0) {
                 pthread_mutex_unlock(&sendflagMutex); //mutex unlock
@@ -195,15 +190,12 @@ void tcplistener(struct socketlife *param)
                 pthread_mutex_unlock(&sendflagMutex); //mutex unlock
             }
             //mutex lock
-            pthread_mutex_lock(&lifeflagMutex);
-            endMyLifeflag = param->endMyLife;
-            pthread_mutex_unlock(&lifeflagMutex);
             pthread_mutex_lock(&disconnMutex);
             disconn = param->disconnected;
             pthread_mutex_unlock(&disconnMutex);
         }
-        pthread_mutex_lock(&disconnMutex);
-        disconn = param->disconnected;
-        pthread_mutex_unlock(&disconnMutex);
+        pthread_mutex_lock(&lifeflagMutex);
+        endMyLifeflag = param->endMyLife;
+        pthread_mutex_unlock(&lifeflagMutex);
     } while (endMyLifeflag == 0);
 }
