@@ -164,36 +164,8 @@ int main(int argc, char *argv[])
     }
     log_message("Mutex init\n");
     bzero((char *) &serv_addr, sizeof(serv_addr));
-    serv_addr.sin_family = AF_INET;
-    //serv_addr.sin_addr.s_addr;
-    serv_addr.sin_port = htons(4242);
-    struct hostent *server = gethostbyname("futuregadgetlab.dynv6.net");
-    log_message("serverdata init\n");
-    //bcopy((char *)server->h_addr,(char *)&serv_addr.sin_addr.s_addr, server->h_length);
-    serv_addr.sin_addr.s_addr=inet_addr("127.0.0.1");
-    printf("Starting connection\n");
-    socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
-    printf("Starting connection..\n");
-    socket_info.disconnected = 1;
-    socket_info.keepaliveSuccess=0;
-    if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
-    {
-        log_message("ERROR CREATING TCP READER THREAD");
-        app_exit();
-    }
-    else
-    {
-        log_message("TCP READ ENABLED\n");
-    }
-    if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
-    {
-        log_message("ERROR CREATING TCP WRITER THREAD");
-        app_exit();
-    }
-    else
-    {
-        log_message("TCP WRITE ENABLED\n");
-    }
+     *targetserver == NULL
+*/
 #endif
     // init dtmf settings (dtmf zero is not reserved for anything!)
     short i;
@@ -275,6 +247,43 @@ int main(int argc, char *argv[])
             app_exit();
         }
     }
+#endif
+#ifdef tcpmodule
+     if (targetserver != NULL)
+         {
+            serv_addr.sin_family = AF_INET;
+            serv_addr.sin_port = htons(4242);
+            log_message("serverdata init\n");
+            bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
+            printf("Starting connection\n");
+            socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
+            printf("Starting connection..\n");
+            socket_info.disconnected = 1;
+            socket_info.keepaliveSuccess=0;
+            if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
+                {
+                log_message("ERROR CREATING TCP READER THREAD");
+                app_exit();
+                }
+            else
+                {
+                log_message("TCP READ ENABLED\n");
+                }
+            if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
+                {
+                log_message("ERROR CREATING TCP WRITER THREAD");
+                app_exit();
+                }
+            else
+                {
+                log_message("TCP WRITE ENABLED\n");
+                }
+        }
+    else
+        {
+            log_message("DOMAIN MISSING OR UNABLE TO RESOLVE");
+            exit(1);
+        }
 #endif
     if	(app_cfg.announcement_file)
     {
@@ -584,6 +593,13 @@ static void parse_config_file(char *cfg_file)
             if (!strcasecmp(arg, "gpio-interrupt"))
             {
                 app_cfg.interrupt_send_port = (short)atoi(val);
+                continue;
+            }
+#endif
+#ifdef tcpmodule
+            if (!strcasecmp(arg, "dtmf-value-forward-srv"))
+            {
+                *targetserver = gethostbyname(val);
                 continue;
             }
 #endif

@@ -19,6 +19,7 @@
 #include<errno.h>
 
 struct sockaddr_in serv_addr;
+struct hostent *targetserver;
 short sendNewValue=0;
 int displayedDigits[4];
 short overwriteDTMFdigitCache =1;
