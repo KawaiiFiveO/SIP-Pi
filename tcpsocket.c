@@ -153,7 +153,7 @@ void tcpwriter (struct socketlife *param)
 
 void tcplistener(struct socketlife *param)
 {
-    short lifeflag = 0;
+    short endMyLifeflag = 0;
     char msgbuf[10] ="";
     int send_acked = 1;
     socklen_t m = sizeof(serv_addr);
@@ -164,16 +164,16 @@ void tcplistener(struct socketlife *param)
     do {
         //mutex lock
         pthread_mutex_lock(&lifeflagMutex);
-        lifeflag = param->endMyLife;
+        endMyLifeflag = param->endMyLife;
         pthread_mutex_unlock(&lifeflagMutex);
         pthread_mutex_lock(&disconnMutex);
         disconn = param->disconnected;
         pthread_mutex_unlock(&disconnMutex);
-        while (disconn != 1 && lifeflag != 1) {
+        while (disconn == 0 && endMyLifeflag == 0) {
             pthread_mutex_lock(&sendflagMutex); //mutex lock
             if (sendNewValue == 0) {
                 pthread_mutex_unlock(&sendflagMutex); //mutex unlock
-                int valread = (int) read(param->socketfd, msgbuf, 10);
+                int valread = (int)read(param->socketfd, msgbuf, 10);
                 if (strncmp(msgbuf, "RCVOK", 5) == 0) {
                     //send_acked = 1;
                     printf("SEND TIME FINISHED");
@@ -196,7 +196,7 @@ void tcplistener(struct socketlife *param)
             }
             //mutex lock
             pthread_mutex_lock(&lifeflagMutex);
-            lifeflag = param->endMyLife;
+            endMyLifeflag = param->endMyLife;
             pthread_mutex_unlock(&lifeflagMutex);
             pthread_mutex_lock(&disconnMutex);
             disconn = param->disconnected;
@@ -205,5 +205,5 @@ void tcplistener(struct socketlife *param)
         pthread_mutex_lock(&disconnMutex);
         disconn = param->disconnected;
         pthread_mutex_unlock(&disconnMutex);
-    } while (lifeflag != 1);
+    } while (endMyLifeflag == 0);
 }
