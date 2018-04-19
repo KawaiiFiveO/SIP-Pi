@@ -23,8 +23,10 @@ For more informations please visit http://binerry.de/post/29180946733/raspberry-
 5. after executing `./build` as described in link, run sudo make install for wiringPi
 
 6. Download this folder to Raspberry Pi
-7. If output of DTMF digits in sipserv through GPIO is needed: execute `make sipserv-gpio` && `make sipcall` in SIP-Pi folder in Terminal
-8. If mentioned output is not needed, just execute `make all` in SIP-Pi folder in Terminal
+7. If output of DTMF digits in sipserv (answer machine) through GPIO is needed: execute `make sipserv-gpio` in SIP-Pi folder in Terminal
+8. If forwarding the 4 last DTMF digits to a tcp server is needed, run `make sipserv-tcp` instead
+9. `make sipcall` if you need the standalone phone software as well
+8. If the mentioned output options are not needed, just execute `make all` in SIP-Pi folder in Terminal instead
 
 9. configure `sipserv.cfg` to your needs (see example configuration)
 10. test drive using`sudo ./sipserv --config-file sipserv.cfg`
@@ -81,6 +83,9 @@ With the sample configuration you can have a blacklist and only the special (=bl
 * am=string   _aftermath: command to be executed after call ends. Will be called with two parameters: $1 = Phone number $2 = recorded file name_
 * gpio-en=int _enable output of DTMF digits on Raspberry Pi wiringPi GPIO_
 
+#### options for DTMF forwarding to TCP server:
+* dtmf-value-forward-srv=string  _Set domain name of tcp server_
+
 #### options for DTMF digit output on Raspberry Pi GPIO
 The GPIO output function is based on wiringPi and uses the wiringPi numbering scheme.
 It outputs the digits as 4-bit binary number.
@@ -106,7 +111,7 @@ Changelog since fabianhu's version:
 * Implemented IPv6 Support
 * added option for wavefile being played instead of an tts file when DTMF key has been pressed
 * added *, #, 0, and A-D into processable DTMF-signals
-
+* added forwarding of last 4 DTMF digits to TCP server after # is pressed
 ## Build PjSIP
 
 ### build directly on Raspberry Pi:
