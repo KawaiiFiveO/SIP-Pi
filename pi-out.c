@@ -16,8 +16,12 @@ short dtmf_value = 0;
 PI_THREAD (raspi_output)
 {
     if (dtmf_trigger) {
+        piLock(0);
         dtmf_trigger = 0;
+        piUnlock(0);
+        piLock(1);
         nibbleOutputGPIO(dtmf_value, app_cfg.gpio_port[0], app_cfg.gpio_port[1], app_cfg.gpio_port[2], app_cfg.gpio_port[3]);
+        piUnlock(1);
         togglePin(app_cfg.interrupt_send_port);
     }
 }

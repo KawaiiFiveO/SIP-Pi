@@ -254,9 +254,6 @@ int main(int argc, char *argv[]) {
                    serv_addr.sin_family = AF_INET;
                    serv_addr.sin_port = htons(4242);
                    log_message("serverdata init\n");
-                   //bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
-                   //printf("Starting connection\n");
-                       //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
                        printf("Starting connection..\n");
                        socket_info.disconnected = 1;
                        socket_info.keepaliveSuccess=0;
@@ -267,7 +264,7 @@ int main(int argc, char *argv[]) {
                            }
                        else
                            {
-                           log_message("TCP READ ENABLED\n");
+                           log_message("TCP READER THREAD ENABLED\n");
                            }
                        if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
                            {
@@ -284,7 +281,7 @@ int main(int argc, char *argv[]) {
    else
        {
            log_message("DOMAIN MISSING");
-           exit(1);
+           exit(4);
        }
 #endif
     if (app_cfg.announcement_file) {
@@ -415,6 +412,13 @@ static void usage(int error)
         puts  ("");
     }
 #endif
+#ifdef tcpmodule
+    if (error == 4)
+    {
+        puts("Missing mandatory infos about DTMF forwarding server");
+        puts  ("");
+    }
+#endif
     puts  ("Usage:");
     puts  ("  sipserv [options]");
     puts  ("");
@@ -463,6 +467,10 @@ static void usage(int error)
     puts  ("gpio-3=int Port number");
     puts  ("gpio-interrupt=int port number");
     puts  ("dtmf-encoding=int Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)");
+#endif
+#ifdef tcpmodule
+    puts  ("options for forwarding a 4-digit DTMF code to a TCP server");
+    puts  ("dtmf-value-forward-srv=string  Set domain name of tcp server");
 #endif
     fflush(stdout);
 }
@@ -708,7 +716,6 @@ static void parse_config_file(char *cfg_file)
                     d_cfg->tts_answer = arg_val;
                     continue;
                 }
-
                 // check for dtmf cmd setting
                 if (!strcasecmp(dtmf_setting, "cmd"))
                 {
@@ -740,7 +747,6 @@ static char *trim_string(char *str)
     while (isspace(*str)) ++str;
 
     char *s = (char *)str;
-
     size_t size;
     char *end;
 
@@ -750,7 +756,6 @@ static char *trim_string(char *str)
     end = s + size - 1;
     while (end >= s && isspace(*end)) end--;
     *(end + 1) = '\0';
-
     return s;
 }
 
@@ -1097,14 +1102,12 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
     // get call infos
     pjsua_call_info ci;
     pjsua_call_get_info(call_id, &ci);
-
     PJ_UNUSED_ARG(acc_id);
     PJ_UNUSED_ARG(rdata);
 
     current_call = call_id;
 
     rec_ans_file = FileNameFromCallInfo(/*filename,*/sipNr,ci,&fileNameLength);
-
     // log call info
     sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,rec_ans_file);
     log_message(info);
@@ -1492,7 +1495,7 @@ static void app_exit()
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        //close(socket_info.socketfd);
+        close(socket_info.socketfd);
         log_message("Join Thread 1\n");
         pthread_join(tcpthread,NULL);//
         log_message("Join Thread 2\n");
@@ -1538,7 +1541,7 @@ static void error_exit(const char *title, pj_status_t status)
         pthread_mutex_unlock(&lifeflagMutex);
         log_message("Final Mutex unlocked ... Shutdown connections \n");
         shutdown(socket_info.socketfd,SHUT_RDWR);
-        //close(socket_info.socketfd);
+        close(socket_info.socketfd);
         pthread_join(tcpthread,NULL);//
         pthread_join(tcpwritethread,NULL);//
         log_message("Final Mutex destruction ... \n");
