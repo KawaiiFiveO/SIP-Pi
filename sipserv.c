@@ -254,8 +254,6 @@ int main(int argc, char *argv[]) {
                    serv_addr.sin_family = AF_INET;
                    serv_addr.sin_port = htons(4242);
                    log_message("serverdata init\n");
-                   //bcopy((char *)targetserver->h_addr,(char *)&serv_addr.sin_addr.s_addr, targetserver->h_length);
-                   //printf("Starting connection\n");
                        //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
                        printf("Starting connection..\n");
                        socket_info.disconnected = 1;
@@ -267,7 +265,7 @@ int main(int argc, char *argv[]) {
                            }
                        else
                            {
-                           log_message("TCP READ ENABLED\n");
+                           log_message("TCP READER THREAD ENABLED\n");
                            }
                        if (pthread_create(&tcpwritethread,NULL,&tcpwriter,&socket_info)!=0)
                            {
@@ -284,7 +282,7 @@ int main(int argc, char *argv[]) {
    else
        {
            log_message("DOMAIN MISSING");
-           exit(1);
+           exit(4);
        }
 #endif
     if (app_cfg.announcement_file) {
@@ -415,6 +413,13 @@ static void usage(int error)
         puts  ("");
     }
 #endif
+#ifdef tcpmodule
+    if (error == 4)
+    {
+        puts("Missing mandatory infos about DTMF forwarding server");
+        puts  ("");
+    }
+#endif
     puts  ("Usage:");
     puts  ("  sipserv [options]");
     puts  ("");
@@ -463,6 +468,10 @@ static void usage(int error)
     puts  ("gpio-3=int Port number");
     puts  ("gpio-interrupt=int port number");
     puts  ("dtmf-encoding=int Set DTMF digit output binary encoding (0=linear/1=MT8870 scheme) (default linear)");
+#endif
+#ifdef tcpmodule
+    puts  ("options for forwarding a 4-digit DTMF code to a TCP server");
+    puts  ("dtmf-value-forward-srv=string  Set domain name of tcp server");
 #endif
     fflush(stdout);
 }
