@@ -132,7 +132,7 @@ make dep
 make
 sudo make install
 ```
-You will have plenty of time to brew some coffe during `make`. Enjoy while waiting.
+You will have plenty of time to drink some Dr. Pepper during `make`. Enjoy while waiting.
 
 ### Cross build of PjSIP for Raspberry:
 
