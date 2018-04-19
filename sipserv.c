@@ -254,7 +254,6 @@ int main(int argc, char *argv[]) {
                    serv_addr.sin_family = AF_INET;
                    serv_addr.sin_port = htons(4242);
                    log_message("serverdata init\n");
-                       //socket_info.socketfd = socket(AF_INET, SOCK_STREAM, 0);
                        printf("Starting connection..\n");
                        socket_info.disconnected = 1;
                        socket_info.keepaliveSuccess=0;
@@ -717,7 +716,6 @@ static void parse_config_file(char *cfg_file)
                     d_cfg->tts_answer = arg_val;
                     continue;
                 }
-
                 // check for dtmf cmd setting
                 if (!strcasecmp(dtmf_setting, "cmd"))
                 {
@@ -749,7 +747,6 @@ static char *trim_string(char *str)
     while (isspace(*str)) ++str;
 
     char *s = (char *)str;
-
     size_t size;
     char *end;
 
@@ -759,7 +756,6 @@ static char *trim_string(char *str)
     end = s + size - 1;
     while (end >= s && isspace(*end)) end--;
     *(end + 1) = '\0';
-
     return s;
 }
 
@@ -1106,14 +1102,12 @@ static void on_incoming_call(pjsua_acc_id acc_id, pjsua_call_id call_id, pjsip_r
     // get call infos
     pjsua_call_info ci;
     pjsua_call_get_info(call_id, &ci);
-
     PJ_UNUSED_ARG(acc_id);
     PJ_UNUSED_ARG(rdata);
 
     current_call = call_id;
 
     rec_ans_file = FileNameFromCallInfo(/*filename,*/sipNr,ci,&fileNameLength);
-
     // log call info
     sprintf(info, "Incoming call from |%s|\n>%s<\n",ci.remote_info.ptr,rec_ans_file);
     log_message(info);
