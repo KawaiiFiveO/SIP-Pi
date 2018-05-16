@@ -1020,7 +1020,9 @@ char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, i
         sipNr[i] = '\0';
     } else {
         //sprintf(tmp,"SIP invalid");
-        log_message(/*tmp,*/ "SIP Invalid\nSIP does not start with sip:<%s>\n", sipTxt_new);
+        log_message("SIP Invalid\nSIP does not start with sip: ");
+        log_message(sipTxt_new);
+        log_message("\n");
         //log_message(tmp);
     }
 
