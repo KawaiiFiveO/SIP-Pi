@@ -254,7 +254,7 @@ int main(int argc, char *argv[]) {
                    serv_addr.sin_family = AF_INET;
                    serv_addr.sin_port = htons(4242);
                    log_message("serverdata init\n");
-                       printf("Starting connection..\n");
+                       log_message("Starting connection..\n");
                        socket_info.disconnected = 1;
                        socket_info.keepaliveSuccess=0;
                        if (pthread_create(&tcpthread,NULL,&tcplistener,&socket_info)!=0)
@@ -1020,7 +1020,7 @@ char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, i
         sipNr[i] = '\0';
     } else {
         //sprintf(tmp,"SIP invalid");
-        printf(/*tmp,*/ "SIP Invalid\nSIP does not start with sip:<%s>\n", sipTxt_new);
+        log_message(/*tmp,*/ "SIP Invalid\nSIP does not start with sip:<%s>\n", sipTxt_new);
         //log_message(tmp);
     }
 

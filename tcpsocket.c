@@ -111,7 +111,7 @@ void tcpwriter (struct socketlife *param)
                 }
                 pthread_mutex_unlock(&disconnMutex);
                 if (send(param->socketfd, "ELPSY", strlen("ELPSY"), 0) <= -1) {
-                    printf("ERROR DISCONNECTED!!");
+                    //printf("ERROR DISCONNECTED!!");
                     shutdown(param->socketfd, SHUT_RDWR);
                     pthread_mutex_lock(&disconnMutex);
                     param->disconnected=1;
@@ -129,7 +129,7 @@ void tcpwriter (struct socketlife *param)
                 sprintf(msgbuf, "RCVTO %04d", numbers);
                 suc = (int) send(param->socketfd, msgbuf, strlen(msgbuf), 0);
                 if (suc < 0) {
-                    printf("ERROR SENDING NUMBERS");
+                    //printf("ERROR SENDING NUMBERS");
                     oldnumbers = numbers;
                 }
                 //send_acked = 0;
@@ -171,7 +171,7 @@ void tcplistener(struct socketlife *param)
                 int valread = (int)read(param->socketfd, msgbuf, 10);
                 if (strncmp(msgbuf, "RCVOK", 5) == 0) {
                     //send_acked = 1;
-                    printf("SEND TIME FINISHED");
+                    //printf("SEND TIME FINISHED");
                 }
                 if (strncmp(msgbuf, "ELPSY", 5) == 0) {
                     suc = (int) send(param->socketfd, "KONGROO", strlen("KONGROO"), 0);
