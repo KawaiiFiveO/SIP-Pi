@@ -1019,11 +1019,9 @@ char* FileNameFromCallInfo(/*char* filename,*/char* sipNr, pjsua_call_info ci, i
         strncpy(sipNr, &sipTxt_new[4], i);
         sipNr[i] = '\0';
     } else {
-        //sprintf(tmp,"SIP invalid");
         log_message("SIP Invalid\nSIP does not start with sip: ");
         log_message(sipTxt_new);
         log_message("\n");
-        //log_message(tmp);
     }
 
     char timestamp[19];
