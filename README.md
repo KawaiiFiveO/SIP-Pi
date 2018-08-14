@@ -85,6 +85,7 @@ With the sample configuration you can have a blacklist and only the special (=bl
 
 #### options for DTMF forwarding to TCP server:
 * dtmf-value-forward-srv=string  _Set domain name of tcp server_
+* mail-audio-response=string _Set audio response for a processed email (in combination with dmail-connect only) (optional)
 
 #### options for DTMF digit output on Raspberry Pi GPIO
 The GPIO output function is based on wiringPi and uses the wiringPi numbering scheme.

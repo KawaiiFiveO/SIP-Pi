@@ -39,6 +39,7 @@ struct app_config {
     short interrupt_send_port;
     short dtmf_encoding;
     char* dtmf_forward_hostname;
+    char* maild_audio_response_file;
 };
 
 struct app_config app_cfg;

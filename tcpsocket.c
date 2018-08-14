@@ -32,6 +32,7 @@ struct socketlife
     short endMyLife;
     short disconnected;
     short keepaliveSuccess;
+    short maild;
 };
 
 int makeDigitsArrToNumber(int* numbers, int amount)
@@ -183,6 +184,7 @@ void tcplistener(struct socketlife *param)
                 }
                 if (strncmp(msgbuf, "MAILD", 5) == 0) {
                     //TODO: trigger audio effect in main thread
+                    param->maild=1;
                 }
             }
             else

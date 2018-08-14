@@ -129,6 +129,7 @@ int main(int argc, char *argv[]) {
     app_cfg.port = 5060;
     app_cfg.gpio_enable = 0;
     app_cfg.dtmf_encoding = 0;
+    app_cfg.maild_audio_response_file=NULL;
 
 
     // print infos
@@ -376,6 +377,15 @@ int main(int argc, char *argv[]) {
             result = temp;
             sleep(1);
         }
+        if (socket_info.maild==1 && app_cfg.maild_audio_response_file != NULL)
+            {
+            //MAILD
+                player_destroy(play_id);
+                recorder_destroy(rec_id);
+                create_player(call_id, app_cfg->maild_audio_response_file);
+                log_message("Playing configured mail completion audio file... ");
+                socket_info.maild=0;
+            }
 #endif
         sleep(6); // avoid locking up the system
 #ifdef tcpmodule
@@ -613,13 +623,34 @@ static void parse_config_file(char *cfg_file)
                 app_cfg.dtmf_forward_hostname=trim_string(arg_val);
                 continue;
             }
-#endif
+            if (!strcasecmp(arg, "mail-audio-response"))
+            {
+                errno = 0;
+                app_cfg.maild_audio_response_file = trim_string(arg_val);
+                if (strlen(app_cfg.maild_audio_response_file)>2) {
+                    FILE *afile;
+                    if ((afile = fopen(app_cfg.maild_audio_response_file, "r+")) == NULL) {
+                        if (errno == ENOENT) {
+                            log_message("Audio file doesn't exist\n");
+                        } else {
+                            // Check for other errors too, like EACCES and EISDIR
+                            log_message("Audio file: some other error occured\n");
+                        }
+                        app_cfg.maild_audio_response_file = NULL;
+                    } else {
+                        fclose(afile);
+                    }
+                }
+                continue;
+            }
+            #endif
             // check for announcement file argument
             if (!strcasecmp(arg, "af"))
             {
                 app_cfg.announcement_file = trim_string(arg_val);
                 continue;
             }
+
             // check for log file argument
             if (!strcasecmp(arg, "call-log"))
             {
@@ -1418,7 +1449,6 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 
                 create_player(call_id, d_cfg->audio_response_file);
                 log_message("Playing configured audio file... ");
-                noaudiofile = 0;
             }
             else
                 {
