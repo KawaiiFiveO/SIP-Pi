@@ -382,7 +382,7 @@ int main(int argc, char *argv[]) {
             //MAILD
                 player_destroy(play_id);
                 recorder_destroy(rec_id);
-                create_player(call_id, app_cfg->maild_audio_response_file);
+                create_player(pjsua_call_id, app_cfg.maild_audio_response_file);
                 log_message("Playing configured mail completion audio file... ");
                 socket_info.maild=0;
             }
