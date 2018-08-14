@@ -1485,13 +1485,23 @@ static void signal_handler(int signal)
 #ifdef tcpmodule
 void play_mail_audio(int siggi)
 {
-    if (app_cfg.maild_audio_response_file != NULL)
+    pjsua_call_info ci;
+    pjsua_call_get_info(current_call, &ci);
+
+    // prevent warning about unused argument e
+    PJ_UNUSED_ARG(e);
+
+    // check call state
+    if (ci.state == PJSIP_INV_STATE_CONFIRMED)
     {
-        //MAILD
-        player_destroy(play_id);
-        recorder_destroy(rec_id);
-        create_player(current_call, app_cfg.maild_audio_response_file);
-        log_message("Playing configured mail completion audio file... ");
+        if (app_cfg.maild_audio_response_file != NULL)
+        {
+            //MAILD
+            player_destroy(play_id);
+            recorder_destroy(rec_id);
+            create_player(current_call, app_cfg.maild_audio_response_file);
+            log_message("Playing configured mail completion audio file... ");
+        }
     }
 }
 
