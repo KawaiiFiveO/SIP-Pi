@@ -1488,9 +1488,6 @@ void play_mail_audio(int siggi)
     pjsua_call_info ci;
     pjsua_call_get_info(current_call, &ci);
 
-    // prevent warning about unused argument e
-    PJ_UNUSED_ARG(e);
-
     // check call state
     if (ci.state == PJSIP_INV_STATE_CONFIRMED)
     {
