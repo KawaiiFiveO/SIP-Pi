@@ -16,10 +16,10 @@ sipserv-local: sipserv.c
 	cc -o $@ $< `pkg-config --cflags --libs libpjproject` -Dlocalhost
 
 sipserv-gpio-local: sipserv.c
-    cc -o sipserv $< `pkg-config --cflags --libs libpjproject`  -L/usr/local/lib -lwiringPi -Dgpioenable -Dlocalhost
+	cc -o sipserv $< `pkg-config --cflags --libs libpjproject`  -L/usr/local/lib -lwiringPi -Dgpioenable -Dlocalhost
 
 sipserv-tcp-local: sipserv.c
-    cc -o sipserv $< `pkg-config --cflags --libs libpjproject`  -L/usr/local/lib -lwiringPi -lpthread -Dgpioenable -Dtcpmodule -Dlocalhost
+	cc -o sipserv $< `pkg-config --cflags --libs libpjproject`  -L/usr/local/lib -lwiringPi -lpthread -Dgpioenable -Dtcpmodule -Dlocalhost
 clean:
 	rm -rf sipcall
 	rm -rf sipserv
