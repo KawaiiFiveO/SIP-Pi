@@ -25,14 +25,15 @@ For more informations please visit http://binerry.de/post/29180946733/raspberry-
 6. Download this folder to Raspberry Pi
 7. If output of DTMF digits in sipserv (answer machine) through GPIO is needed: execute `make sipserv-gpio` in SIP-Pi folder in Terminal
 8. If forwarding the 4 last DTMF digits to a tcp server is needed, run `make sipserv-tcp` instead
-9. `make sipcall` if you need the standalone phone software as well
-8. If the mentioned output options are not needed, just execute `make all` in SIP-Pi folder in Terminal instead
+9. add a `-local` directly at the end (without a space) if you run the sip server you are planning to connect to is on the same Pi.
+10. `make sipcall` if you need the standalone phone software as well
+11. If the mentioned output options are not needed, just execute `make all` in SIP-Pi folder in Terminal instead
 
-9. configure `sipserv.cfg` to your needs (see example configuration)
-10. test drive using`sudo ./sipserv --config-file sipserv.cfg`
-11. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
-12. stop the SIP service using `sipserv-ctrl.sh stop`
-13. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
+12. configure `sipserv.cfg` to your needs (see example configuration)
+13. test drive using`sudo ./sipserv --config-file sipserv.cfg`
+14. this is not(yet) a "real" service, so include `./sipserv-ctrl.sh start` command into your favourite autostart.
+15. stop the SIP service using `sipserv-ctrl.sh stop`
+16. install lame `sudo apt-get install lame` for the MP3 compression of recordings (mail.sh)
 
 ## sipserv
 
