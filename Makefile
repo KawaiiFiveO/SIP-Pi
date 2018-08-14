@@ -20,6 +20,7 @@ sipserv-gpio-local: sipserv.c
 
 sipserv-tcp-local: sipserv.c
 	cc -o sipserv $< `pkg-config --cflags --libs libpjproject`  -L/usr/local/lib -lwiringPi -lpthread -Dgpioenable -Dtcpmodule -Dlocalhost
+
 clean:
 	rm -rf sipcall
 	rm -rf sipserv
