@@ -111,6 +111,7 @@ static void on_call_media_state(pjsua_call_id);
 static void on_call_state(pjsua_call_id, pjsip_event *);
 static void on_dtmf_digit(pjsua_call_id, int);
 static void signal_handler(int);
+static void play_mail_audio(int);
 #ifdef tcpmodule
 static void disconn_signal(int);
 #endif
@@ -129,6 +130,7 @@ int main(int argc, char *argv[]) {
     app_cfg.port = 5060;
     app_cfg.gpio_enable = 0;
     app_cfg.dtmf_encoding = 0;
+    app_cfg.maild_audio_response_file=NULL;
 
 
     // print infos
@@ -139,7 +141,8 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGKILL, signal_handler);
 #ifdef tcpmodule
-    signal(SIGPIPE,disconn_signal);
+    signal(SIGUSR1, play_mail_audio);
+    signal(SIGPIPE, disconn_signal);
     overwriteDTMFdigitCache=1;
     if (pthread_mutex_init(&digitMutex, NULL) != 0) {
         log_message("\n digit mutex init failed\n");
@@ -613,13 +616,34 @@ static void parse_config_file(char *cfg_file)
                 app_cfg.dtmf_forward_hostname=trim_string(arg_val);
                 continue;
             }
-#endif
+            if (!strcasecmp(arg, "mail-audio-response"))
+            {
+                errno = 0;
+                app_cfg.maild_audio_response_file = trim_string(arg_val);
+                if (strlen(app_cfg.maild_audio_response_file)>2) {
+                    FILE *afile;
+                    if ((afile = fopen(app_cfg.maild_audio_response_file, "r+")) == NULL) {
+                        if (errno == ENOENT) {
+                            log_message("Audio file doesn't exist\n");
+                        } else {
+                            // Check for other errors too, like EACCES and EISDIR
+                            log_message("Audio file: some other error occured\n");
+                        }
+                        app_cfg.maild_audio_response_file = NULL;
+                    } else {
+                        fclose(afile);
+                    }
+                }
+                continue;
+            }
+            #endif
             // check for announcement file argument
             if (!strcasecmp(arg, "af"))
             {
                 app_cfg.announcement_file = trim_string(arg_val);
                 continue;
             }
+
             // check for log file argument
             if (!strcasecmp(arg, "call-log"))
             {
@@ -858,7 +882,10 @@ static void register_sip(void)
     cfg.id = pj_str(sip_user_url);
     cfg.reg_uri = pj_str(sip_provider_url);
     cfg.cred_count = 1;
-    cfg.cred_info[0].realm = pj_str(/*app_cfg.sip_domain*/"*");
+    cfg.cred_info[0].realm = pj_str(app_cfg.sip_domain);
+#ifdef localhost
+    cfg.cred_info[0].realm = pj_str("*");
+#endif
     cfg.cred_info[0].scheme = pj_str("digest");
     cfg.cred_info[0].username = pj_str(app_cfg.sip_user);
     cfg.cred_info[0].data_type = PJSIP_CRED_DATA_PLAIN_PASSWD;
@@ -1418,7 +1445,6 @@ static void on_dtmf_digit(pjsua_call_id call_id, int digit)
 
                 create_player(call_id, d_cfg->audio_response_file);
                 log_message("Playing configured audio file... ");
-                noaudiofile = 0;
             }
             else
                 {
@@ -1458,7 +1484,27 @@ static void signal_handler(int signal)
     // exit app
     app_exit();
 }
+
 #ifdef tcpmodule
+void play_mail_audio(int siggi)
+{
+    pjsua_call_info ci;
+    pjsua_call_get_info(current_call, &ci);
+
+    // check call state
+    if (ci.state == PJSIP_INV_STATE_CONFIRMED)
+    {
+        if (app_cfg.maild_audio_response_file != NULL)
+        {
+            //MAILD
+            player_destroy(play_id);
+            recorder_destroy(rec_id);
+            create_player(current_call, app_cfg.maild_audio_response_file);
+            log_message("Playing configured mail completion audio file... ");
+        }
+    }
+}
+
 static void disconn_signal(int signal)
 {
     //mark as disconnected

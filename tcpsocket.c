@@ -17,6 +17,7 @@
 #include <pthread.h>
 #include <unistd.h>
 #include<errno.h>
+#include <signal.h>
 
 struct sockaddr_in serv_addr;
 //struct hostent *targetserver;
@@ -183,6 +184,7 @@ void tcplistener(struct socketlife *param)
                 }
                 if (strncmp(msgbuf, "MAILD", 5) == 0) {
                     //TODO: trigger audio effect in main thread
+                    kill(getpid(),SIGUSR1);
                 }
             }
             else
