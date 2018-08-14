@@ -111,6 +111,7 @@ static void on_call_media_state(pjsua_call_id);
 static void on_call_state(pjsua_call_id, pjsip_event *);
 static void on_dtmf_digit(pjsua_call_id, int);
 static void signal_handler(int);
+static void play_mail_audio(int);
 #ifdef tcpmodule
 static void disconn_signal(int);
 #endif
@@ -140,7 +141,8 @@ int main(int argc, char *argv[]) {
     signal(SIGINT, signal_handler);
     signal(SIGKILL, signal_handler);
 #ifdef tcpmodule
-    signal(SIGPIPE,disconn_signal);
+    signal(SIGUSR1, play_mail_audio);
+    signal(SIGPIPE, disconn_signal);
     overwriteDTMFdigitCache=1;
     if (pthread_mutex_init(&digitMutex, NULL) != 0) {
         log_message("\n digit mutex init failed\n");
@@ -377,15 +379,6 @@ int main(int argc, char *argv[]) {
             result = temp;
             sleep(1);
         }
-        if (socket_info.maild==1 && app_cfg.maild_audio_response_file != NULL)
-            {
-            //MAILD
-                player_destroy(play_id);
-                recorder_destroy(rec_id);
-                create_player(current_call, app_cfg.maild_audio_response_file);
-                log_message("Playing configured mail completion audio file... ");
-                socket_info.maild=0;
-            }
 #endif
         sleep(6); // avoid locking up the system
 #ifdef tcpmodule
@@ -484,6 +477,20 @@ static void usage(int error)
 #endif
     fflush(stdout);
 }
+
+#ifdef tcpmodule
+void play_mail_audio(int siggi)
+{
+    if (app_cfg.maild_audio_response_file != NULL)
+    {
+        //MAILD
+        player_destroy(play_id);
+        recorder_destroy(rec_id);
+        create_player(current_call, app_cfg.maild_audio_response_file);
+        log_message("Playing configured mail completion audio file... ");
+    }
+}
+#endif
 
 // helper for parsing command-line-argument
 static int try_get_argument(int arg, char *arg_id, char **arg_val, int argc, char *argv[])
