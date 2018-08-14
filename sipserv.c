@@ -478,20 +478,6 @@ static void usage(int error)
     fflush(stdout);
 }
 
-#ifdef tcpmodule
-void play_mail_audio(int siggi)
-{
-    if (app_cfg.maild_audio_response_file != NULL)
-    {
-        //MAILD
-        player_destroy(play_id);
-        recorder_destroy(rec_id);
-        create_player(current_call, app_cfg.maild_audio_response_file);
-        log_message("Playing configured mail completion audio file... ");
-    }
-}
-#endif
-
 // helper for parsing command-line-argument
 static int try_get_argument(int arg, char *arg_id, char **arg_val, int argc, char *argv[])
 {
@@ -1495,7 +1481,20 @@ static void signal_handler(int signal)
     // exit app
     app_exit();
 }
+
 #ifdef tcpmodule
+void play_mail_audio(int siggi)
+{
+    if (app_cfg.maild_audio_response_file != NULL)
+    {
+        //MAILD
+        player_destroy(play_id);
+        recorder_destroy(rec_id);
+        create_player(current_call, app_cfg.maild_audio_response_file);
+        log_message("Playing configured mail completion audio file... ");
+    }
+}
+
 static void disconn_signal(int signal)
 {
     //mark as disconnected
