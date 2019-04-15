@@ -119,8 +119,10 @@ Changelog since fabianhu's version:
 ### build directly on Raspberry Pi:
 
 ```bash
+sudo apt-get install uuid uuid-dev libuuid1 libssl-dev libasound2-dev
+
 cd ~/tmp # any temporary directory
-wget http://www.pjsip.org/release/2.7.1/pjproject-2.7.1.tar.bz2
+wget https://www.pjsip.org/release/2.8/pjproject-2.8.tar.bz2
 tar xvfj pjproject-2.7.1.tar.bz2
 cd pjproject-2.7.1/
 ./configure --disable-video --disable-libwebrtc
@@ -128,10 +130,10 @@ cd pjproject-2.7.1/
 nano pjlib/include/pj/config_site.h (add next line into file:)
 #define PJ_HAS_IPV6 1
 
-navigate back to pjproject-2.7.1 folder
+navigate back to pjproject-2.8 folder
 
 make dep 
-make
+make -j5
 sudo make install
 ```
 You will have plenty of time to drink some Dr. Pepper during `make`. Enjoy while waiting.
