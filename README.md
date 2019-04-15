@@ -123,8 +123,8 @@ sudo apt-get install uuid uuid-dev libuuid1 libssl-dev libasound2-dev
 
 cd ~/tmp # any temporary directory
 wget https://www.pjsip.org/release/2.8/pjproject-2.8.tar.bz2
-tar xvfj pjproject-2.7.1.tar.bz2
-cd pjproject-2.7.1/
+tar xvfj pjproject-2.8.tar.bz2
+cd pjproject-2.8/
 ./configure --disable-video --disable-libwebrtc
 
 nano pjlib/include/pj/config_site.h (add next line into file:)
@@ -153,7 +153,7 @@ export LDFLAGS="-L/opt/raspi_tools/tools/arm-bcm2708/gcc-linaro-arm-linux-gnueab
 Add into pjlib/include/pj/config_site.h:
 #define PJ_HAS_IPV6 1
 
-navigate back to pjproject-2.7.1 folder
+navigate back to pjproject-2.8 folder
 
 make dep
 
