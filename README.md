@@ -119,9 +119,9 @@ Changelog since fabianhu's version:
 * added forwarding of last 4 DTMF digits to TCP server after # is pressed
 
 Changelog since KaitoCross's version:
-* sipserv updated and tested working on Raspbian Buster 4.19
+* sipserv updated and tested working on Raspbian Buster version September 2019
 * Fixed various bugs and crashes
-* Quality of life improvements, error handling
+* Quality of life improvements, program status and error handling
 * PjSIP installation instructions updated for compatibility
 
 ## Build PjSIP
@@ -138,18 +138,21 @@ cd ~/tmp # any installation directory
 wget https://www.pjsip.org/release/2.8/pjproject-2.8.tar.bz2
 tar xvfj pjproject-2.8.tar.bz2
 cd pjproject-2.8/
-
-./configure --disable-video --disable-libwebrtc
-
-nano pjlib/include/pj/config_site.h (Add next line into file:)
+```
+edit pjlib/include/pj/config_site.h
+Add next line into file:
+```
 #define PJ_HAS_IPV6 1
-
-nano user.mak (Add following in file:)
+```
+edit user.mak
+Add following to file:
+```
 export CFLAGS += -march=armv7-a -mfpu=neon-vfpv4 -ffast-math -mfloat-abi=hard
 export LDFLAGS +=
-
-nano third_party/build/os-auto.mak.in (Edit near the end of the file and comment out the lines as follows:)
-
+```
+edit third_party/build/os-auto.mak.in
+Edit near the end of the file and comment out the lines as follows:
+```
 # External webrtc
 else
 DIRS += webrtc
@@ -184,11 +187,12 @@ WEBRTC_OTHER_CFLAGS += -DWEBRTC_HAS_NEON
 #endif
 endif
 endif
-
+```
 (File ends here)
 
-nano pjlib/include/pj/config.h (Replace this code:)
-
+edit pjlib/include/pj/config.h
+Replace this code:
+```
     /*
      * ARM, bi-endian, so raise error if endianness is not configured
      */
@@ -199,18 +203,19 @@ nano pjlib/include/pj/config.h (Replace this code:)
 #	undef PJ_M_ARMV7
 #	define PJ_M_ARM7		1
 #	define PJ_M_NAME		"armv7"
-
-(with this:)
-
+```
+with this:
+```
 #   define PJ_IS_LITTLE_ENDIAN  1
 #   define PJ_IS_BIG_ENDIAN     0
 #   if defined (PJ_M_ARMV7) || defined(ARMV7)
 #	undef PJ_M_ARMV7
 #	define PJ_M_ARM7		1
 #	define PJ_M_NAME		"armv7"
-
+```
 navigate back to pjproject-2.8 folder
-
+```
+./configure --disable-video --disable-libwebrtc
 make dep
 make
 sudo make install
