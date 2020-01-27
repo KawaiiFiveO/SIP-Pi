@@ -27,7 +27,7 @@ For more information please visit http://binerry.de/post/29180946733/raspberry-p
 6. Download this folder to Raspberry Pi
 7. If output of DTMF digits in sipserv (answer machine) through GPIO is needed: execute `make sipserv-gpio` in SIP-Pi folder in Terminal
 8. If forwarding the 4 last DTMF digits to a tcp server is needed, run `make sipserv-tcp` instead
-9. add a `-local` directly at the end (without a space) if you run the sip server you are planning to connect to is on the same Pi.
+9. add a `-local` directly at the end (without a space) if you run the sip server you are planning to connect to is on the same Pi. (Match any authentication realm request.)
 10. `make sipcall` if you need the standalone phone software as well
 11. If the mentioned output options are not needed, just execute `make all` in SIP-Pi folder in Terminal instead
 
@@ -39,12 +39,12 @@ For more information please visit http://binerry.de/post/29180946733/raspberry-p
 
 ## sipserv
 
-Pickup a call, have a welcome message played or read.
-Do some actions by pressing (DTMF) keys on your phone.
-Send 4-bit DTMF key value through GPIO if wished.
-This service uses a generic approach. All actions are configurable via config file.
-One special usage is the special ability to record the caller while playing the intro.
-Please contact your lawyer, if this is legal in your country.
+Pickup a call, have a welcome message played or read.  
+Do some actions by pressing (DTMF) keys on your phone.  
+Send 4-bit DTMF key value through GPIO if wished.  
+This service uses a generic approach. All actions are configurable via config file.  
+One special usage is the special ability to record the caller while playing the intro.  
+Please contact your lawyer, if this is legal in your country.  
 You can have a whitelist (numbers.txt) and only the special (whitelisted) calls answered.
 
 
@@ -66,7 +66,6 @@ You can have a whitelist (numbers.txt) and only the special (whitelisted) calls 
 * sp=string   _Set sip password._   
 * ln=string   _Language identifier for espeak TTS (e.g. en = English or de = German)._
 * call-log=string _Filename to write call log to._
-
 * tts=string  _String to be read as a intro message_
 
 #### _determine DTMF Key digit encoding_
@@ -92,16 +91,16 @@ You can have a whitelist (numbers.txt) and only the special (whitelisted) calls 
 * mail-audio-response=string _Set audio response for a processed email (in combination with dmail-connect only) (optional)
 
 #### options for DTMF digit output on Raspberry Pi GPIO
-The GPIO output function is based on wiringPi and uses the wiringPi numbering scheme.
-It outputs the digits as 4-bit binary number.
-When GPIO output has been enabled, you have to define all 4 output ports and the interrupt port.
-To define them, put this into the config file:
+The GPIO output function is based on wiringPi and uses the wiringPi numbering scheme.  
+It outputs the digits as 4-bit binary number.  
+When GPIO output has been enabled, you have to define all 4 output ports and the interrupt port.  
+To define them, put this into the config file:  
 * gpio-0=int _Port number goes here instead of int_
 * gpio-1=int _Port number goes here instead of int_
 * gpio-2=int _Port number goes here instead of int_
 * gpio-3=int _Port number goes here instead of int_
 * gpio-interrupt=int  _Port number goes here instead of int_
-The interrupt port is often needed by the microprocesser that reads those digits.
+The interrupt port is often needed by the microprocesser that reads those digits.  
 Connect it to the interrupt port of your other microprocesser and configure that controller as needed to respond to the interrupt.
 
 #### a sample configuration can be found in sipserv-sample.cfg
@@ -128,7 +127,7 @@ Changelog since KaitoCross's version:
 
 ### build directly on Raspberry Pi:
 
-Note: SIP-Pi was only tested using PjSIP version 2.8.
+Note: SIP-Pi was only tested using PjSIP version 2.8.  
 Use newer or older versions at your own risk.
 
 ```bash
@@ -139,18 +138,18 @@ wget https://www.pjsip.org/release/2.8/pjproject-2.8.tar.bz2
 tar xvfj pjproject-2.8.tar.bz2
 cd pjproject-2.8/
 ```
-edit pjlib/include/pj/config_site.h
+edit pjlib/include/pj/config_site.h  
 Add next line into file:
 ```
 #define PJ_HAS_IPV6 1
 ```
-edit user.mak
+edit user.mak  
 Add following to file:
 ```
 export CFLAGS += -march=armv7-a -mfpu=neon-vfpv4 -ffast-math -mfloat-abi=hard
 export LDFLAGS +=
 ```
-edit third_party/build/os-auto.mak.in
+edit third_party/build/os-auto.mak.in  
 Edit near the end of the file and comment out the lines as follows:
 ```
 # External webrtc
@@ -190,7 +189,7 @@ endif
 ```
 (File ends here)
 
-edit pjlib/include/pj/config.h
+edit pjlib/include/pj/config.h  
 Replace this code:
 ```
     /*
