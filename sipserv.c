@@ -886,7 +886,7 @@ static void register_sip(void)
     cfg.id = pj_str(sip_user_url);
     cfg.reg_uri = pj_str(sip_provider_url);
     cfg.cred_count = 1;
-    cfg.cred_info[0].realm = pj_str("*");
+    cfg.cred_info[0].realm = pj_str(app_cfg.sip_domain);
 #ifdef localhost
     cfg.cred_info[0].realm = pj_str("*");
 #endif
