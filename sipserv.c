@@ -1,11 +1,11 @@
 /*
 =================================================================================
  Name        : sipserv.c
- Version     : 0.1
+ Version     : 1.1 beta
 
  Copyright (C) 2012 by Andre Wussow, desk@binerry.de
                2017 by Fabian Huslik, github/fabianhu
-			   2020 by Kat, github/KawaiiFiveO
+               2020 by Kat, github/KawaiiFiveO
 
  Description :
      Tool for automated, flexible answered calls over SIP/VOIP with PJSUA library and eSpeak.
